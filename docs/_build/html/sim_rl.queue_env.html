@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.queue_env package &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sim_rl.rl_env package" href="sim_rl.rl_env.html" />
+    <link rel="prev" title="sim_rl.foundations.breakdown_exploration package" href="sim_rl.foundations.breakdown_exploration.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">sim_rl</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sim_rl.html">sim_rl package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sim_rl.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.agents.html">sim_rl.agents package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.evaluation.html">sim_rl.evaluation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.foundations.html">sim_rl.foundations package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">sim_rl.queue_env package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.rl_env.html">sim_rl.rl_env package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.tests.html">sim_rl.tests package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.tuning.html">sim_rl.tuning package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#module-sim_rl.debug">sim_rl.debug module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#module-sim_rl.main">sim_rl.main module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#module-sim_rl">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">sim_rl</a></li>
+          <li class="breadcrumb-item"><a href="sim_rl.html">sim_rl package</a></li>
+      <li class="breadcrumb-item active">sim_rl.queue_env package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sim_rl.queue_env.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sim-rl-queue-env-package">
+<h1>sim_rl.queue_env package<a class="headerlink" href="#sim-rl-queue-env-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-sim_rl.queue_env.queue_base_functions">
+<span id="sim-rl-queue-env-queue-base-functions-module"></span><h2>sim_rl.queue_env.queue_base_functions module<a class="headerlink" href="#module-sim_rl.queue_env.queue_base_functions" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.create_params">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">create_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#create_params"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.create_params" title="Link to this definition"></a></dt>
+<dd><p>Generate parameters for the queueing environment based on a configuration file.</p>
+<p>Parameters:
+- config_file (str): The file path to the environment configuration file.</p>
+<p>Returns:
+- Multiple return values including lists and dictionaries essential for creating the queueing environment.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.create_q_args">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">create_q_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_type_info</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miu_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size_for_each_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_classes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#create_q_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.create_q_args" title="Link to this definition"></a></dt>
+<dd><p>Constructs arguments for queue initialization based on the network configuration.</p>
+<p>Parameters:
+- edge_type_info (dict): Information about edge types for each node.
+- config_params (dict): Configuration parameters including service rates and buffer sizes.
+- miu_dict (dict): A dictionary mapping nodes to their service rates.
+- buffer_size_for_each_queue (dict): A dictionary mapping queue identifiers to their buffer sizes.
+- exit_nodes (list): A list of nodes identified as exit points in the network.</p>
+<p>Returns:
+- dict: A dictionary of queue arguments where keys are queue identifiers, and values are dictionaries of arguments needed for initializing each queue.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.create_q_classes">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">create_q_classes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#create_q_classes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.create_q_classes" title="Link to this definition"></a></dt>
+<dd><p>Creates a dictionary mapping queue identifiers to their corresponding queue class.</p>
+<p>Parameters:
+- num_queues (int): The number of queues to create classes for, excluding the null queue.</p>
+<p>Returns:
+- dict: A dictionary where keys are queue identifiers (starting from 1) and values are queue class types.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.create_queueing_env">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">create_queueing_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#create_queueing_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.create_queueing_env" title="Link to this definition"></a></dt>
+<dd><p>Create and configure a queueing environment based on a given configuration file.</p>
+<p>Parameters:
+- config_file (str): The file path to the environment configuration file.</p>
+<p>Returns:
+- Queue_network: An instance of the queueing environment.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.exponential">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">exponential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.exponential" title="Link to this definition"></a></dt>
+<dd><p>Draw samples from an exponential distribution.</p>
+<p>Its probability density function is</p>
+<div class="math notranslate nohighlight">
+\[f(x; \frac{1}{\beta}) = \frac{1}{\beta} \exp(-\frac{x}{\beta}),\]</div>
+<p>for <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> and 0 elsewhere. <span class="math notranslate nohighlight">\(\beta\)</span> is the scale parameter,
+which is the inverse of the rate parameter <span class="math notranslate nohighlight">\(\lambda = 1/\beta\)</span>.
+The rate parameter is an alternative, widely used parameterization
+of the exponential distribution <a href="#id13"><span class="problematic" id="id1">[3]_</span></a>.</p>
+<p>The exponential distribution is a continuous analogue of the
+geometric distribution.  It describes many common situations, such as
+the size of raindrops measured over many rainstorms <a href="#id14"><span class="problematic" id="id2">[1]_</span></a>, or the time
+between page requests to Wikipedia <a href="#id15"><span class="problematic" id="id3">[2]_</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <cite>~numpy.random.Generator.exponential</cite>
+method of a <cite>~numpy.random.Generator</cite> instance instead;
+please see the <span class="xref std std-ref">random-quick-start</span>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale</strong> (<em>float</em><em> or </em><em>array_like</em><em> of </em><em>floats</em>) – The scale parameter, <span class="math notranslate nohighlight">\(\beta = 1/\lambda\)</span>. Must be
+non-negative.</p></li>
+<li><p><strong>size</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>ints</em><em>, </em><em>optional</em>) – Output shape.  If the given shape is, e.g., <code class="docutils literal notranslate"><span class="pre">(m,</span> <span class="pre">n,</span> <span class="pre">k)</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">*</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">k</span></code> samples are drawn.  If size is <code class="docutils literal notranslate"><span class="pre">None</span></code> (default),
+a single value is returned if <code class="docutils literal notranslate"><span class="pre">scale</span></code> is a scalar.  Otherwise,
+<code class="docutils literal notranslate"><span class="pre">np.array(scale).size</span></code> samples are drawn.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> – Drawn samples from the parameterized exponential distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray or scalar</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>A real world example: Assume a company has 10000 customer support
+agents and the average time between customer calls is 4 minutes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_between_calls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>What is the probability that a customer will call in the next
+4 to 5 minutes?</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">((</span><span class="n">time_between_calls</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">/</span><span class="n">n</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">((</span><span class="n">time_between_calls</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">/</span><span class="n">n</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">-</span><span class="n">y</span>
+<span class="go">0.08 # may vary</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random.Generator.exponential</span></code></dt><dd><p>which should be used for new code.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id4" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Peyton Z. Peebles Jr., “Probability, Random Variables and
+Random Signal Principles”, 4th ed, 2001, p. 57.</p>
+</aside>
+<aside class="footnote brackets" id="id5" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Wikipedia, “Poisson process”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Poisson_process">https://en.wikipedia.org/wiki/Poisson_process</a></p>
+</aside>
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Wikipedia, “Exponential distribution”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Exponential_distribution">https://en.wikipedia.org/wiki/Exponential_distribution</a></p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.get_connection_info">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_connection_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjacent_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#get_connection_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.get_connection_info" title="Link to this definition"></a></dt>
+<dd><p>Generates a dictionary mapping each node to a list of nodes that connect to it.</p>
+<p>Parameters:
+- adjacent_list (dict): A dictionary representing the network’s adjacency list.</p>
+<p>Returns:
+- dict: A dictionary where keys are end nodes, and values are lists of start nodes that connect to these end nodes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.get_entry_nodes">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_entry_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#get_entry_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.get_entry_nodes" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.get_node_id">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_node_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_type_info</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#get_node_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.get_node_id" title="Link to this definition"></a></dt>
+<dd><p>Finds and returns the node ID associated with a specific edge type.</p>
+<p>Parameters:
+- edge_type (any): The type of the edge for which the node ID is to be found.
+- edge_type_info (dict): A dictionary where each key is a node ID and its value is a list of edge types</p>
+<blockquote>
+<div><p>associated with that node.</p>
+</div></blockquote>
+<p>Returns:
+- any: The node ID for the specified edge type if found; otherwise, None if no node has the specified edge type.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.get_node_tuple_from_edgetype">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_node_tuple_from_edgetype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#get_node_tuple_from_edgetype"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.get_node_tuple_from_edgetype" title="Link to this definition"></a></dt>
+<dd><p>Creates a dictionary mapping each edge type to a list of tuples, where each tuple represents an edge
+from a source node to an end node.</p>
+<p>Parameters:
+- edge_list (dict): A dictionary where each key is a source node and its value is another dictionary.</p>
+<blockquote>
+<div><p>The nested dictionary’s key is the end node and its value is the edge type.</p>
+</div></blockquote>
+<p>Returns:
+- dict: A dictionary where keys are edge types and values are lists of tuples (source_node, end_node)</p>
+<blockquote>
+<div><p>representing the edges of that type.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.get_num_connections">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_num_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjacent_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#get_num_connections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.get_num_connections" title="Link to this definition"></a></dt>
+<dd><p>Calculates the total number of connections and identifies exit nodes within the adjacency list of a network.</p>
+<p>Parameters:
+- adjacent_list (dict): A dictionary where keys are start nodes and values are lists of end nodes they connect to.</p>
+<p>Returns:
+- tuple: A tuple containing the total number of connections (int) and a list of exit nodes ([]).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.load_config">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">load_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_param_filepath</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#load_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.load_config" title="Link to this definition"></a></dt>
+<dd><p>Load configuration parameters from a YAML file.</p>
+<p>Parameters:
+- config_filepath (str): The file path to the configuration YAML file.</p>
+<p>Returns:
+- dict: A dictionary containing the configuration parameters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.make_edge_list">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">make_edge_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjacent_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#make_edge_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.make_edge_list" title="Link to this definition"></a></dt>
+<dd><p>Creates an edge list with types for each connection based on the adjacency list and identified exit nodes.</p>
+<p>Parameters:
+- adjacent_list (dict): A dictionary representing the network’s adjacency list.
+- exit_nodes (list): A list of nodes identified as exit points in the network.</p>
+<p>Returns:
+- dict: A dictionary representing the edge list, where keys are start nodes, and values are dictionaries of end nodes with their edge types.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.make_unique_edge_type">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">make_unique_edge_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjacent_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_list</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queue_base_functions.html#make_unique_edge_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.make_unique_edge_type" title="Link to this definition"></a></dt>
+<dd><p>Assigns a unique edge type to connections between nodes based on the adjacency and edge lists.</p>
+<p>Parameters:
+- adjacent_list (dict): A dictionary representing the network’s adjacency list.
+- edge_list (dict): A dictionary representing the network’s edge list, indicating connections between nodes.</p>
+<p>Returns:
+- dict: A dictionary where keys are node identifiers, and values are lists of unique edge types for edges ending at that node.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queue_base_functions.uniform">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queue_base_functions.</span></span><span class="sig-name descname"><span class="pre">uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sim_rl.queue_env.queue_base_functions.uniform" title="Link to this definition"></a></dt>
+<dd><p>Draw samples from a uniform distribution.</p>
+<p>Samples are uniformly distributed over the half-open interval
+<code class="docutils literal notranslate"><span class="pre">[low,</span> <span class="pre">high)</span></code> (includes low, but excludes high).  In other words,
+any value within the given interval is equally likely to be drawn
+by <cite>uniform</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <cite>~numpy.random.Generator.uniform</cite>
+method of a <cite>~numpy.random.Generator</cite> instance instead;
+please see the <span class="xref std std-ref">random-quick-start</span>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>low</strong> (<em>float</em><em> or </em><em>array_like</em><em> of </em><em>floats</em><em>, </em><em>optional</em>) – Lower boundary of the output interval.  All values generated will be
+greater than or equal to low.  The default value is 0.</p></li>
+<li><p><strong>high</strong> (<em>float</em><em> or </em><em>array_like</em><em> of </em><em>floats</em>) – Upper boundary of the output interval.  All values generated will be
+less than or equal to high.  The high limit may be included in the
+returned array of floats due to floating-point rounding in the
+equation <code class="docutils literal notranslate"><span class="pre">low</span> <span class="pre">+</span> <span class="pre">(high-low)</span> <span class="pre">*</span> <span class="pre">random_sample()</span></code>.  The default value
+is 1.0.</p></li>
+<li><p><strong>size</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>ints</em><em>, </em><em>optional</em>) – Output shape.  If the given shape is, e.g., <code class="docutils literal notranslate"><span class="pre">(m,</span> <span class="pre">n,</span> <span class="pre">k)</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">*</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">k</span></code> samples are drawn.  If size is <code class="docutils literal notranslate"><span class="pre">None</span></code> (default),
+a single value is returned if <code class="docutils literal notranslate"><span class="pre">low</span></code> and <code class="docutils literal notranslate"><span class="pre">high</span></code> are both scalars.
+Otherwise, <code class="docutils literal notranslate"><span class="pre">np.broadcast(low,</span> <span class="pre">high).size</span></code> samples are drawn.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> – Drawn samples from the parameterized uniform distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray or scalar</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">randint</span></code></dt><dd><p>Discrete uniform distribution, yielding integers.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_integers</span></code></dt><dd><p>Discrete uniform distribution over the closed interval <code class="docutils literal notranslate"><span class="pre">[low,</span> <span class="pre">high]</span></code>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_sample</span></code></dt><dd><p>Floats uniformly distributed over <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1)</span></code>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random</span></code></dt><dd><p>Alias for <cite>random_sample</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand</span></code></dt><dd><p>Convenience function that accepts dimensions as input, e.g., <code class="docutils literal notranslate"><span class="pre">rand(2,2)</span></code> would generate a 2-by-2 array of floats, uniformly distributed over <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1)</span></code>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random.Generator.uniform</span></code></dt><dd><p>which should be used for new code.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The probability density function of the uniform distribution is</p>
+<div class="math notranslate nohighlight">
+\[p(x) = \frac{1}{b - a}\]</div>
+<p>anywhere within the interval <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b)</span></code>, and zero elsewhere.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">high</span></code> == <code class="docutils literal notranslate"><span class="pre">low</span></code>, values of <code class="docutils literal notranslate"><span class="pre">low</span></code> will be returned.
+If <code class="docutils literal notranslate"><span class="pre">high</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">low</span></code>, the results are officially undefined
+and may eventually raise an error, i.e. do not rely on this
+function to behave when passed arguments satisfying that
+inequality condition. The <code class="docutils literal notranslate"><span class="pre">high</span></code> limit may be included in the
+returned array of floats due to floating-point rounding in the
+equation <code class="docutils literal notranslate"><span class="pre">low</span> <span class="pre">+</span> <span class="pre">(high-low)</span> <span class="pre">*</span> <span class="pre">random_sample()</span></code>. For example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="mf">0.99999999</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">5.0</span>
+</pre></div>
+</div>
+<p class="rubric">Examples</p>
+<p>Draw samples from the distribution:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All values are within the given interval:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">s</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Display the histogram of the samples, along with the
+probability density function:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">count</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">ignored</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">bins</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-sim_rl.queue_env.queueing_network">
+<span id="sim-rl-queue-env-queueing-network-module"></span><h2>sim_rl.queue_env.queueing_network module<a class="headerlink" href="#module-sim_rl.queue_env.queueing_network" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queueing_network.Queue_network">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queueing_network.</span></span><span class="sig-name descname"><span class="pre">Queue_network</span></span><a class="reference internal" href="_modules/sim_rl/queue_env/queueing_network.html#Queue_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queueing_network.Queue_network" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queueing_network.Queue_network.create_env">
+<span class="sig-name descname"><span class="pre">create_env</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queueing_network.html#Queue_network.create_env"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queueing_network.Queue_network.create_env" title="Link to this definition"></a></dt>
+<dd><p>Creates the queue network environment from the configured adjacency and edge lists.</p>
+<p>This method initializes the graph structure and the queue network with specified classes and arguments.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queueing_network.Queue_network.process_config">
+<span class="sig-name descname"><span class="pre">process_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queueing_network.html#Queue_network.process_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queueing_network.Queue_network.process_config" title="Link to this definition"></a></dt>
+<dd><p>This function accepts the name of the yaml file as the input and returns the variables for the process_input function.</p>
+<p>Parameters:
+- filename (str) : Name of the yaml file</p>
+<p>Returns:
+- lambda_list (list) : List of arrival rates for each queue
+- miu_list (list) : List of service rates for each queue
+- active_cap (int) : Active capacity of the server
+- deactive_t (float) : Deactivation time
+- adjacent_list (dict) : Adjacency list of the network
+- buffer_size_for_each_queue (list) : List of buffer sizes for each queue
+- transition_proba (dict) : Transition probability matrix</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queueing_network.Queue_network.process_input">
+<span class="sig-name descname"><span class="pre">process_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arrival_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">miu_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_classes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjacent_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transition_proba</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_agents</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_jobs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queueing_network.html#Queue_network.process_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queueing_network.Queue_network.process_input" title="Link to this definition"></a></dt>
+<dd><p>Configures the queue network simulation environment with provided inputs.</p>
+<p>Parameters:
+- arrival_rate (float): The overall rate at which jobs arrive at the queue network.
+- miu_list (list): List of service rates for each queue.
+- q_classes (dict): Mapping of queue identifiers to their respective queue class types.
+- q_args (dict): Additional arguments specific to each queue class.
+- adjacent_list (dict): Adjacency list representing the connections between queues.
+- edge_list (dict): Detailed edge list providing specific connections and identifiers.
+- transition_proba (dict): Probabilities of transitioning from one queue to another.
+- max_agents (int): Maximum number of concurrent agents in the network.
+- sim_jobs (int): Total number of jobs to simulate.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queueing_network.Queue_network.run_simulation">
+<span class="sig-name descname"><span class="pre">run_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_events</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">collect_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/queue_env/queueing_network.html#Queue_network.run_simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.queue_env.queueing_network.Queue_network.run_simulation" title="Link to this definition"></a></dt>
+<dd><p>Runs the simulation of the queue network for a given number of events.</p>
+<p>Parameters:
+- num_events (int): The number of events to simulate.
+- collect_data (bool): Specifies whether to collect and store data during simulation.</p>
+<p>Returns:
+- dict: Collected data about agents if data collection is enabled; otherwise, None.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queueing_network.exponential">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queueing_network.</span></span><span class="sig-name descname"><span class="pre">exponential</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sim_rl.queue_env.queueing_network.exponential" title="Link to this definition"></a></dt>
+<dd><p>Draw samples from an exponential distribution.</p>
+<p>Its probability density function is</p>
+<div class="math notranslate nohighlight">
+\[f(x; \frac{1}{\beta}) = \frac{1}{\beta} \exp(-\frac{x}{\beta}),\]</div>
+<p>for <code class="docutils literal notranslate"><span class="pre">x</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> and 0 elsewhere. <span class="math notranslate nohighlight">\(\beta\)</span> is the scale parameter,
+which is the inverse of the rate parameter <span class="math notranslate nohighlight">\(\lambda = 1/\beta\)</span>.
+The rate parameter is an alternative, widely used parameterization
+of the exponential distribution <a href="#id16"><span class="problematic" id="id7">[3]_</span></a>.</p>
+<p>The exponential distribution is a continuous analogue of the
+geometric distribution.  It describes many common situations, such as
+the size of raindrops measured over many rainstorms <a href="#id17"><span class="problematic" id="id8">[1]_</span></a>, or the time
+between page requests to Wikipedia <a href="#id18"><span class="problematic" id="id9">[2]_</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <cite>~numpy.random.Generator.exponential</cite>
+method of a <cite>~numpy.random.Generator</cite> instance instead;
+please see the <span class="xref std std-ref">random-quick-start</span>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scale</strong> (<em>float</em><em> or </em><em>array_like</em><em> of </em><em>floats</em>) – The scale parameter, <span class="math notranslate nohighlight">\(\beta = 1/\lambda\)</span>. Must be
+non-negative.</p></li>
+<li><p><strong>size</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>ints</em><em>, </em><em>optional</em>) – Output shape.  If the given shape is, e.g., <code class="docutils literal notranslate"><span class="pre">(m,</span> <span class="pre">n,</span> <span class="pre">k)</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">*</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">k</span></code> samples are drawn.  If size is <code class="docutils literal notranslate"><span class="pre">None</span></code> (default),
+a single value is returned if <code class="docutils literal notranslate"><span class="pre">scale</span></code> is a scalar.  Otherwise,
+<code class="docutils literal notranslate"><span class="pre">np.array(scale).size</span></code> samples are drawn.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> – Drawn samples from the parameterized exponential distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray or scalar</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>A real world example: Assume a company has 10000 customer support
+agents and the average time between customer calls is 4 minutes.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">n</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time_between_calls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span><span class="o">.</span><span class="n">exponential</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>What is the probability that a customer will call in the next
+4 to 5 minutes?</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">((</span><span class="n">time_between_calls</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">/</span><span class="n">n</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">((</span><span class="n">time_between_calls</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="o">/</span><span class="n">n</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="o">-</span><span class="n">y</span>
+<span class="go">0.08 # may vary</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random.Generator.exponential</span></code></dt><dd><p>which should be used for new code.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id10" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<p>Peyton Z. Peebles Jr., “Probability, Random Variables and
+Random Signal Principles”, 4th ed, 2001, p. 57.</p>
+</aside>
+<aside class="footnote brackets" id="id11" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></span>
+<p>Wikipedia, “Poisson process”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Poisson_process">https://en.wikipedia.org/wiki/Poisson_process</a></p>
+</aside>
+<aside class="footnote brackets" id="id12" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></span>
+<p>Wikipedia, “Exponential distribution”,
+<a class="reference external" href="https://en.wikipedia.org/wiki/Exponential_distribution">https://en.wikipedia.org/wiki/Exponential_distribution</a></p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.queue_env.queueing_network.uniform">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.queue_env.queueing_network.</span></span><span class="sig-name descname"><span class="pre">uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">low</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sim_rl.queue_env.queueing_network.uniform" title="Link to this definition"></a></dt>
+<dd><p>Draw samples from a uniform distribution.</p>
+<p>Samples are uniformly distributed over the half-open interval
+<code class="docutils literal notranslate"><span class="pre">[low,</span> <span class="pre">high)</span></code> (includes low, but excludes high).  In other words,
+any value within the given interval is equally likely to be drawn
+by <cite>uniform</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <cite>~numpy.random.Generator.uniform</cite>
+method of a <cite>~numpy.random.Generator</cite> instance instead;
+please see the <span class="xref std std-ref">random-quick-start</span>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>low</strong> (<em>float</em><em> or </em><em>array_like</em><em> of </em><em>floats</em><em>, </em><em>optional</em>) – Lower boundary of the output interval.  All values generated will be
+greater than or equal to low.  The default value is 0.</p></li>
+<li><p><strong>high</strong> (<em>float</em><em> or </em><em>array_like</em><em> of </em><em>floats</em>) – Upper boundary of the output interval.  All values generated will be
+less than or equal to high.  The high limit may be included in the
+returned array of floats due to floating-point rounding in the
+equation <code class="docutils literal notranslate"><span class="pre">low</span> <span class="pre">+</span> <span class="pre">(high-low)</span> <span class="pre">*</span> <span class="pre">random_sample()</span></code>.  The default value
+is 1.0.</p></li>
+<li><p><strong>size</strong> (<em>int</em><em> or </em><em>tuple</em><em> of </em><em>ints</em><em>, </em><em>optional</em>) – Output shape.  If the given shape is, e.g., <code class="docutils literal notranslate"><span class="pre">(m,</span> <span class="pre">n,</span> <span class="pre">k)</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">*</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">k</span></code> samples are drawn.  If size is <code class="docutils literal notranslate"><span class="pre">None</span></code> (default),
+a single value is returned if <code class="docutils literal notranslate"><span class="pre">low</span></code> and <code class="docutils literal notranslate"><span class="pre">high</span></code> are both scalars.
+Otherwise, <code class="docutils literal notranslate"><span class="pre">np.broadcast(low,</span> <span class="pre">high).size</span></code> samples are drawn.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>out</strong> – Drawn samples from the parameterized uniform distribution.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ndarray or scalar</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">randint</span></code></dt><dd><p>Discrete uniform distribution, yielding integers.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_integers</span></code></dt><dd><p>Discrete uniform distribution over the closed interval <code class="docutils literal notranslate"><span class="pre">[low,</span> <span class="pre">high]</span></code>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random_sample</span></code></dt><dd><p>Floats uniformly distributed over <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1)</span></code>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random</span></code></dt><dd><p>Alias for <cite>random_sample</cite>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">rand</span></code></dt><dd><p>Convenience function that accepts dimensions as input, e.g., <code class="docutils literal notranslate"><span class="pre">rand(2,2)</span></code> would generate a 2-by-2 array of floats, uniformly distributed over <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1)</span></code>.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">random.Generator.uniform</span></code></dt><dd><p>which should be used for new code.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>The probability density function of the uniform distribution is</p>
+<div class="math notranslate nohighlight">
+\[p(x) = \frac{1}{b - a}\]</div>
+<p>anywhere within the interval <code class="docutils literal notranslate"><span class="pre">[a,</span> <span class="pre">b)</span></code>, and zero elsewhere.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">high</span></code> == <code class="docutils literal notranslate"><span class="pre">low</span></code>, values of <code class="docutils literal notranslate"><span class="pre">low</span></code> will be returned.
+If <code class="docutils literal notranslate"><span class="pre">high</span></code> &lt; <code class="docutils literal notranslate"><span class="pre">low</span></code>, the results are officially undefined
+and may eventually raise an error, i.e. do not rely on this
+function to behave when passed arguments satisfying that
+inequality condition. The <code class="docutils literal notranslate"><span class="pre">high</span></code> limit may be included in the
+returned array of floats due to floating-point rounding in the
+equation <code class="docutils literal notranslate"><span class="pre">low</span> <span class="pre">+</span> <span class="pre">(high-low)</span> <span class="pre">*</span> <span class="pre">random_sample()</span></code>. For example:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="mf">0.99999999</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">5.0</span>
+</pre></div>
+</div>
+<p class="rubric">Examples</p>
+<p>Draw samples from the distribution:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>All values are within the given interval:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">s</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Display the histogram of the samples, along with the
+probability density function:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">count</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">ignored</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">bins</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-sim_rl.queue_env">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sim_rl.queue_env" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sim_rl.foundations.breakdown_exploration.html" class="btn btn-neutral float-left" title="sim_rl.foundations.breakdown_exploration package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sim_rl.rl_env.html" class="btn btn-neutral float-right" title="sim_rl.rl_env package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

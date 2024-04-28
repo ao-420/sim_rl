@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.evaluation.decision_evaluation.decision_evaluation &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">sim_rl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sim_rl.evaluation.decision_evaluation.decision_evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sim_rl.evaluation.decision_evaluation.decision_evaluation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
+<span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">foundations.core_functions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">foundations.core_functions</span> <span class="kn">import</span> <span class="n">create_simulation_env</span>
+<span class="kn">from</span> <span class="nn">foundations.core_functions</span> <span class="kn">import</span> <span class="n">Engine</span>
+<span class="kn">from</span> <span class="nn">rl_env.RL_Environment</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">queue_env.queueing_network</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">queueing_tool.queues.queue_servers</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+
+<div class="viewcode-block" id="ControlEvaluation">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.ControlEvaluation">[docs]</a>
+<span class="k">class</span> <span class="nc">ControlEvaluation</span><span class="p">(</span><span class="n">Engine</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_index</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;throughput&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class reponsible for evaluating the learnt policy of the agent in a simulated environment.</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        queue_index (int): Index of the queue for which metrics are evaluated.</span>
+<span class="sd">        metric (str): The performance metric to evaluate (Available options: &#39;throughput&#39;, &#39;waiting_time&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_param_filepath</span> <span class="o">=</span> <span class="s2">&quot;user_config/configuration.yml&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_param_filepath</span> <span class="o">=</span> <span class="s2">&quot;user_config/eval_hyperparams.yml&quot;</span>
+        <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_hyperparams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_param_filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_param_filepath</span><span class="p">,</span> <span class="n">disrupt_case</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">agent</span> <span class="o">=</span> <span class="n">create_ddpg_agent</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span> <span class="o">=</span> <span class="n">queue_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">=</span> <span class="s2">&quot;Normal&quot;</span>
+
+<div class="viewcode-block" id="ControlEvaluation.load_hyperparams">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.ControlEvaluation.load_hyperparams">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_hyperparams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eval_param_filepath</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load hyperparameters from a YAML file.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - param_filepath (str): The file path to the hyperparameters YAML file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - tuple: A tuple containing two dictionaries, `params` for hyperparameters and `hidden` for hidden layer configurations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_dir</span><span class="p">)</span>
+        <span class="n">abs_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">eval_param_filepath</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">env_param_file</span><span class="p">:</span>
+            <span class="n">parameter_dictionary</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">env_param_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;rl_params&quot;</span><span class="p">]</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;network_params&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span></div>
+
+
+<div class="viewcode-block" id="ControlEvaluation.plot_transition_proba">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.ControlEvaluation.plot_transition_proba">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_transition_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition_proba_lists</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plotting function that supports a variable number of queue metrics lists and labels.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># Clear previous plots</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">transition_proba_lists</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time Steps&quot;</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Transition Probability&quot;</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Transition Probability vs Time Steps for Queue </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">figure_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">case</span><span class="si">}</span><span class="s2">_transition_proba_plot.png&quot;</span>
+
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="n">evaluation_dir</span> <span class="o">=</span> <span class="s2">&quot;evaluation/decision_evaluation/output_plots&quot;</span>
+
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="n">evaluation_dir</span><span class="p">)</span>
+
+        <span class="c1"># Check if the directory exists, and create it if it doesn&#39;t</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+
+        <span class="n">save_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">figure_name</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ControlEvaluation.plot_queue">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.ControlEvaluation.plot_queue">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="o">*</span><span class="n">queue_metrics_lists</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plotting function that supports a variable number of queue metrics lists and labels.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># Clear previous plots</span>
+        <span class="k">for</span> <span class="n">queue_metrics</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">queue_metrics_lists</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">queue_metrics</span><span class="p">)),</span> <span class="n">queue_metrics</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time Steps&quot;</span><span class="p">,</span>
+            <span class="n">ylabel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; vs Time Steps for Queue </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">figure_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">case</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="si">}</span><span class="s2">_plot.png&quot;</span>
+
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="n">evaluation_dir</span> <span class="o">=</span> <span class="s2">&quot;evaluation/decision_evaluation/output_plots&quot;</span>
+
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="n">evaluation_dir</span><span class="p">)</span>
+
+        <span class="c1"># Check if the directory exists, and create it if it doesn&#39;t</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+
+        <span class="n">save_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">figure_name</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ControlEvaluation.start_evaluation">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.ControlEvaluation.start_evaluation">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Modified evaluation function that supports plotting of queue metrics and transition probabilities.&quot;&quot;&quot;</span>
+        <span class="n">source_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">edge2queue</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span><span class="p">]</span><span class="o">.</span><span class="n">edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">target_edge</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">edge2queue</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span><span class="p">]</span><span class="o">.</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">queue_metrics</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">queue_transition_proba</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">time_steps</span><span class="p">):</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">actor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">get_next_state</span><span class="p">(</span><span class="n">action</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">queue_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">return_queue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">queue_transition_proba</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">[</span><span class="n">source_edge</span><span class="p">][</span><span class="n">target_edge</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_queue</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">],</span> <span class="n">queue_metrics</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plot_transition_proba</span><span class="p">(</span><span class="n">queue_transition_proba</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">queue_metrics</span><span class="p">,</span> <span class="n">queue_transition_proba</span></div>
+
+
+<div class="viewcode-block" id="ControlEvaluation.load_agent">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.ControlEvaluation.load_agent">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="n">agent_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;agents&quot;</span><span class="p">,</span> <span class="s2">&quot;trained_agent.pt&quot;</span><span class="p">)</span>
+        <span class="n">agent</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">agent_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">agent</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DisruptionEvaluation">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.DisruptionEvaluation">[docs]</a>
+<span class="k">class</span> <span class="nc">DisruptionEvaluation</span><span class="p">(</span><span class="n">ControlEvaluation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class extends Control Evaluation for demonstrating scenarios where the agent has to handle disruptions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queue_index</span><span class="p">,</span> <span class="n">metric</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">queue_index</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_param_filepath</span> <span class="o">=</span> <span class="s2">&quot;user_config/configuration.yml&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eval_param_filepath</span> <span class="o">=</span> <span class="s2">&quot;user_config/eval_hyperparams.yml&quot;</span>
+        <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_hyperparams</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eval_param_filepath</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span> <span class="o">=</span> <span class="n">queue_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="n">metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">case</span> <span class="o">=</span> <span class="s2">&quot;Blocked&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">standard_environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_param_filepath</span><span class="p">,</span> <span class="n">disrupt_case</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deactivate_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">standard_environment</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">edge2queue</span><span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_param_filepath</span><span class="p">,</span>
+            <span class="n">disrupt_case</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">disrupt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">queue_index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">queue_index</span><span class="p">,</span>
+            <span class="n">deactivate_node</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deactivate_node</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="DisruptionEvaluation.plot_transition_proba_changes">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.decision_evaluation.html#sim_rl.evaluation.decision_evaluation.decision_evaluation.DisruptionEvaluation.plot_transition_proba_changes">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_transition_proba_changes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">queue_transition_proba_before_disrupt</span><span class="p">,</span>
+        <span class="n">queue_transition_proba_after_disrupt</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">param_file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;user_config</span><span class="se">\\</span><span class="s2">evaluation_params</span><span class="se">\\</span><span class="s2">blockage_demonstration_params.yml&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_file</span> <span class="o">=</span> <span class="s2">&quot;evaluation</span><span class="se">\\</span><span class="s2">decision_evaluation\output_plots&quot;</span>
+        <span class="n">trans_proba_changes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">queue_transition_proba_before_disrupt</span> <span class="o">+</span> <span class="n">queue_transition_proba_after_disrupt</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">trans_proba_changes</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Routing Proba Changes Before/After Disruption for Queue_</span><span class="si">{</span><span class="n">queue_index</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="n">evaluation_dir</span> <span class="o">=</span> <span class="s2">&quot;evaluation/decision_evaluation/output_plots&quot;</span>
+        <span class="n">figure_name</span> <span class="o">=</span> <span class="s2">&quot;Transition_Proba_BeforeAfter_Blockage.png&quot;</span>
+
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">script_dir</span><span class="p">,</span> <span class="n">evaluation_dir</span><span class="p">)</span>
+
+        <span class="c1"># Check if the directory exists, and create it if it doesn&#39;t</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">full_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+
+        <span class="n">save_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">figure_name</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filepath</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># Example Usage</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Define the parameters for initializing the CoNtrol Envaluation Object</span>
+    <span class="n">queue_index</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;throughput&quot;</span>
+    <span class="n">nc</span> <span class="o">=</span> <span class="n">ControlEvaluation</span><span class="p">(</span><span class="n">queue_index</span><span class="o">=</span><span class="n">queue_index</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">)</span>
+
+    <span class="c1"># Define the standard parameters for starting the evaluation</span>
+    <span class="n">time_steps</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">sim_jobs</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="s2">&quot;user_config/configuration.yml&quot;</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">load_agent</span><span class="p">()</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">queue_transition_proba_before_disrupt</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">start_evaluation</span><span class="p">(</span>
+        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span> <span class="n">time_steps</span><span class="o">=</span><span class="n">time_steps</span>
+    <span class="p">)</span>
+
+    <span class="c1">## Static Disruption</span>
+    <span class="n">queue_index</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">metric</span> <span class="o">=</span> <span class="s2">&quot;throughput&quot;</span>
+    <span class="n">sd</span> <span class="o">=</span> <span class="n">DisruptionEvaluation</span><span class="p">(</span><span class="n">queue_index</span><span class="p">,</span> <span class="n">metric</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">queue_transition_proba_after_disrupt</span> <span class="o">=</span> <span class="n">sd</span><span class="o">.</span><span class="n">start_evaluation</span><span class="p">(</span>
+        <span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span> <span class="n">time_steps</span><span class="o">=</span><span class="n">time_steps</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Changes in transition proba</span>
+    <span class="c1"># _, queue_transition_proba_before_disrupt = nc.evaluation(agent=agent, time_steps=time_steps)</span>
+    <span class="c1"># _, queue_transition_proba_after_disrupt = sd.evaluation(agent= agent, time_steps=time_steps)</span>
+    <span class="n">sd</span><span class="o">.</span><span class="n">plot_transition_proba_changes</span><span class="p">(</span>
+        <span class="n">queue_transition_proba_before_disrupt</span><span class="p">,</span> <span class="n">queue_transition_proba_after_disrupt</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

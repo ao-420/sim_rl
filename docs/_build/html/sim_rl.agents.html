@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.agents package &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=8d563738"></script>
+        <script src="_static/doctools.js?v=9a2dae69"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sim_rl.evaluation package" href="sim_rl.evaluation.html" />
+    <link rel="prev" title="sim_rl package" href="sim_rl.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">sim_rl</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="sim_rl.html">sim_rl package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="sim_rl.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">sim_rl.agents package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.evaluation.html">sim_rl.evaluation package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.foundations.html">sim_rl.foundations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.queue_env.html">sim_rl.queue_env package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.rl_env.html">sim_rl.rl_env package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.tests.html">sim_rl.tests package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sim_rl.tuning.html">sim_rl.tuning package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#module-sim_rl.debug">sim_rl.debug module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#module-sim_rl.main">sim_rl.main module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sim_rl.html#module-sim_rl">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">sim_rl</a></li>
+          <li class="breadcrumb-item"><a href="sim_rl.html">sim_rl package</a></li>
+      <li class="breadcrumb-item active">sim_rl.agents package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sim_rl.agents.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sim-rl-agents-package">
+<h1>sim_rl.agents package<a class="headerlink" href="#sim-rl-agents-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-sim_rl.agents.buffer">
+<span id="sim-rl-agents-buffer-module"></span><h2>sim_rl.agents.buffer module<a class="headerlink" href="#module-sim_rl.agents.buffer" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.agents.buffer.ReplayBuffer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.agents.buffer.</span></span><span class="sig-name descname"><span class="pre">ReplayBuffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/buffer.html#ReplayBuffer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.buffer.ReplayBuffer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.buffer.ReplayBuffer.clear">
+<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/buffer.html#ReplayBuffer.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.buffer.ReplayBuffer.clear" title="Link to this definition"></a></dt>
+<dd><p>Clear all items from the replay buffer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.buffer.ReplayBuffer.get_current_size">
+<span class="sig-name descname"><span class="pre">get_current_size</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/buffer.html#ReplayBuffer.get_current_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.buffer.ReplayBuffer.get_current_size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.buffer.ReplayBuffer.get_items">
+<span class="sig-name descname"><span class="pre">get_items</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/buffer.html#ReplayBuffer.get_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.buffer.ReplayBuffer.get_items" title="Link to this definition"></a></dt>
+<dd><p>Returns a 4-tuple containing all items in the buffer (as torch.Tensors).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.buffer.ReplayBuffer.push">
+<span class="sig-name descname"><span class="pre">push</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/buffer.html#ReplayBuffer.push"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.buffer.ReplayBuffer.push" title="Link to this definition"></a></dt>
+<dd><p>Push a transition to the buffer. If the buffer is full, the oldest transition will be removed.</p>
+<p>Parameters:
+- transition (4-tuple): object to be stored in replay buffer. Should be a tuple of (state, action, reward, next_state),</p>
+<blockquote>
+<div><p>each item in the tuple should be a torch.Tensor.</p>
+</div></blockquote>
+<p>Raises:
+- TypeError: If transition is not a tuple.
+- ValueError: If transition is not a 4-tuple.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.buffer.ReplayBuffer.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/buffer.html#ReplayBuffer.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.buffer.ReplayBuffer.sample" title="Link to this definition"></a></dt>
+<dd><p>Get {batch_size} number of random samples from the replay buffer.</p>
+<p>Parameters:
+- batch_size (int): Number of samples to be drawn from the buffer.</p>
+<p>Returns:
+- iterable (list): A list of objects sampled from the buffer without replacement.</p>
+<p>Raises:
+- ValueError: If the buffer is empty, or the sample size is greater than the number of items in the buffer.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sim_rl.agents.ddpg_agent">
+<span id="sim-rl-agents-ddpg-agent-module"></span><h2>sim_rl.agents.ddpg_agent module<a class="headerlink" href="#module-sim_rl.agents.ddpg_agent" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.agents.ddpg_agent.</span></span><span class="sig-name descname"><span class="pre">DDPGAgent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.convert_state">
+<span class="sig-name descname"><span class="pre">convert_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_tensor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.convert_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.convert_state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.eval">
+<span class="sig-name descname"><span class="pre">eval</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.eval"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.eval" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.fit_model">
+<span class="sig-name descname"><span class="pre">fit_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.fit_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.fit_model" title="Link to this definition"></a></dt>
+<dd><p>Fits the agent’s model of the environment M with all the data in the buffer B. This involves training
+two separate neural networks for the number of epochs specified:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>M1(s,a) = hat{r}    –&gt; predicts the reward for a given (s,a) pair</p></li>
+<li><p>M2(s,a) = hat{s’}   –&gt; predicts the next state for a given (s,a) pair</p></li>
+</ol>
+</div></blockquote>
+<p>Parameters:
+- batch_size (int): The size of each batch of data to use during fitting of M.
+- threshold (int): The minimum number of samples needed in the buffer before training.
+- epochs (int): The number of epochs to train the two neural networks. Defaults to 5</p>
+<p>Returns:
+- None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.hard_update">
+<span class="sig-name descname"><span class="pre">hard_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.hard_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.hard_update" title="Link to this definition"></a></dt>
+<dd><p>Perform a hard update of target network weights using the policy network weights. This directly
+copies the parameters of the source network to the target network.</p>
+<p>Parameters:
+- network (str): Specifies which network to update. Should be either ‘actor’ or ‘critic’.</p>
+<p>Raises:
+- ValueError: If the input network parameter is neither ‘actor’ nor ‘critic’.</p>
+<p>Returns:
+- None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.plan">
+<span class="sig-name descname"><span class="pre">plan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.plan"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.plan" title="Link to this definition"></a></dt>
+<dd><p>Implementing lines 12 to 16 in Dyna-DDPG.</p>
+<p>Given an experience (s,a,r,s’), plan for P steps. This involves
+- perturbing the action by a small value epsilon
+- obtaining reward and next state from the agent’s model of the environment
+- updating the critic network using this experience (s, hat{a}, hat{r}, hat{s’})</p>
+<p>Parameters:
+- experience (tuple): tuple of (state, action, reward, next_state) where each element is</p>
+<blockquote>
+<div><p>of type torch.Tensor</p>
+</div></blockquote>
+<p>Returns:
+- None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.select_action">
+<span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.select_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.select_action" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.soft_update">
+<span class="sig-name descname"><span class="pre">soft_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.soft_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.soft_update" title="Link to this definition"></a></dt>
+<dd><p>Perform a soft update of target network weights using the policy network weights. This involves updating
+the target network parameters slowly by interpolating between the current target network parameters and
+the current policy network parameters.</p>
+<p>Parameters:
+- network (str): Specifies which network to update. Should be either ‘actor’ or ‘critic’.</p>
+<p>Raises:
+- ValueError: If the input network parameter is neither ‘actor’ nor ‘critic’.</p>
+<p>Returns:
+- None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.store_experience">
+<span class="sig-name descname"><span class="pre">store_experience</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experience</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.store_experience"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.store_experience" title="Link to this definition"></a></dt>
+<dd><p>Store an experience in the agent’s buffer, given that it is in training mode.</p>
+<p>Parameters:
+- experience (tuple): Tuple of (state, action, reward, next_state) where each element is</p>
+<blockquote>
+<div><p>of type torch.Tensor</p>
+</div></blockquote>
+<p>Returns:
+- None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.train" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.update_actor_network">
+<span class="sig-name descname"><span class="pre">update_actor_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.update_actor_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.update_actor_network" title="Link to this definition"></a></dt>
+<dd><p>Given a batch of experiences as input, update the actor network by performing gradient
+descent. The loss is accumulated over all the experiences in the batch (total_policy_loss)
+and the mean loss (mean_policy_loss) is used to update the network.</p>
+<p>Parameters:
+- batch (list): A list of experiences, where each experience is a tuple of</p>
+<blockquote>
+<div><p>(state, action, reward, next_state) and each
+element is of type torch.Tensor</p>
+</div></blockquote>
+<p>Returns:
+- mean_policy_loss (float): The mean loss over the batch of experiences
+- gradient_dict (dict): Dictionary of gradients for each parameter in the actor network</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.ddpg_agent.DDPGAgent.update_critic_network">
+<span class="sig-name descname"><span class="pre">update_critic_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/ddpg_agent.html#DDPGAgent.update_critic_network"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.ddpg_agent.DDPGAgent.update_critic_network" title="Link to this definition"></a></dt>
+<dd><p>Given a batch of experiences as input, update the critic network by performing gradient
+descent. The loss is accumulated over all the experiences in the batch (total_critic_loss)
+and the mean loss (mean_critic_loss) is used to update the network.</p>
+<p>Parameters:
+- batch (list): A list of experiences, where each experience is a tuple of</p>
+<blockquote>
+<div><p>(state, action, reward, next_state) and each
+element is of type torch.Tensor</p>
+</div></blockquote>
+<p>Returns:
+- mean_critic_loss (float): The mean loss over the batch of experiences</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-sim_rl.agents.model">
+<span id="sim-rl-agents-model-module"></span><h2>sim_rl.agents.model module<a class="headerlink" href="#module-sim_rl.agents.model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.agents.model.Actor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.agents.model.</span></span><span class="sig-name descname"><span class="pre">Actor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#Actor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.Actor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>An Actor network for actor-critic algorithms, using a sequence of layers and optional residual blocks.</p>
+<p>Parameters:
+- n_states (int): Number of states in the input space.
+- n_actions (int): Number of actions in the output space.
+- hidden (list): List of integers defining the number of nodes in each hidden layer.
+- device (torch.device): The device tensors will be sent to for calculations.</p>
+<p>Attributes:
+- layers (nn.Sequential): Sequential container of layers.
+- device (torch.device): Device on which the network will run.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.model.Actor.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#Actor.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.Actor.forward" title="Link to this definition"></a></dt>
+<dd><p>Forward pass for the Actor network.</p>
+<p>Parameters:
+- state (torch.Tensor or array-like): Input state.</p>
+<p>Returns:
+- torch.Tensor: Action values as output from the network.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.agents.model.Critic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.agents.model.</span></span><span class="sig-name descname"><span class="pre">Critic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#Critic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.Critic" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.model.Critic.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#Critic.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.Critic.forward" title="Link to this definition"></a></dt>
+<dd><p>Parameters:
+- xa (list):    [state vector, action vector] where both vectors have shape</p>
+<blockquote>
+<div><p>(N,1)</p>
+</div></blockquote>
+<p>Returns:
+- torch.Tensor: Output Q value.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.agents.model.NextStateModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.agents.model.</span></span><span class="sig-name descname"><span class="pre">NextStateModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#NextStateModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.NextStateModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.model.NextStateModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#NextStateModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.NextStateModel.forward" title="Link to this definition"></a></dt>
+<dd><p>Parameters:
+- xa (list):    [state vector, action vector] where both vectors have</p>
+<blockquote>
+<div><p>shape (N,1)</p>
+</div></blockquote>
+<p>Returns:
+- torch.Tensor (n_states,) : predicted next state</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.agents.model.ResidualBlock">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.agents.model.</span></span><span class="sig-name descname"><span class="pre">ResidualBlock</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_features</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#ResidualBlock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.ResidualBlock" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>A Residual Block that adds the input (identity) to the output of a linear layer, normalization,
+and activation function.</p>
+<p>Parameters:
+- in_features (int): Number of input features.
+- out_features (int): Number of output features.</p>
+<p>Attributes:
+- linear (nn.Linear): Linear transformation layer.
+- norm (nn.LayerNorm): Layer normalization.
+- activation (nn.LeakyReLU): Leaky ReLU activation function.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.model.ResidualBlock.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#ResidualBlock.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.ResidualBlock.forward" title="Link to this definition"></a></dt>
+<dd><p>Forward pass for the Residual Block.</p>
+<p>Parameters:
+- x (torch.Tensor): Input tensor.</p>
+<p>Returns:
+- torch.Tensor: Output tensor after applying the block’s layers and adding the input tensor.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sim_rl.agents.model.RewardModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sim_rl.agents.model.</span></span><span class="sig-name descname"><span class="pre">RewardModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_states</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_actions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#RewardModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.RewardModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sim_rl.agents.model.RewardModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xa</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#RewardModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.RewardModel.forward" title="Link to this definition"></a></dt>
+<dd><p>Parameters:
+- xa (list):    [state vector, action vector] where both vectors have</p>
+<blockquote>
+<div><p>shape (N,1)</p>
+</div></blockquote>
+<p>Returns:
+- torch.Tensor : predicted reward of state-action pair</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sim_rl.agents.model.check_validity">
+<span class="sig-prename descclassname"><span class="pre">sim_rl.agents.model.</span></span><span class="sig-name descname"><span class="pre">check_validity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hidden</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sim_rl/agents/model.html#check_validity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sim_rl.agents.model.check_validity" title="Link to this definition"></a></dt>
+<dd><p>Helper function that checks the validity of the input ‘hidden’ to the
+constructors of the neural networks</p>
+</dd></dl>
+
+</section>
+<section id="module-sim_rl.agents">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-sim_rl.agents" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sim_rl.html" class="btn btn-neutral float-left" title="sim_rl package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sim_rl.evaluation.html" class="btn btn-neutral float-right" title="sim_rl.evaluation package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

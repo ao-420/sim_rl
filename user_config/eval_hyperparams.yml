@@ -1,0 +1,83 @@
+---
+rl_params:
+
+  num_episodes: 10
+  
+  threshold: 10
+
+  num_epochs: 100
+
+  time_steps: 50
+
+  batch_size: 50
+  
+  target_update_frequency: 100
+  
+  buffer_size: 10000
+  
+  num_sim: 10
+  
+  tau: 0.5
+
+  temperature: 0.15
+
+  num_train_AC: 10
+  
+  critic_lr: 0.01
+
+  actor_lr: 0.0001
+  
+  discount: 0.8
+  
+  planning_steps: 10
+  
+  planning_std: 0.1
+
+  account_for_blockage: False
+
+state_exploration_params:
+
+  num_sample: 100
+  
+  w1: 0.5
+  
+  w2: 0.5
+  
+  epsilon_state_exploration: 1
+
+  reset: False
+
+  reset_frequency: 2
+
+  num_output: 5
+
+  moa_window: 5
+
+  output_json: True
+
+  output_histogram: False
+
+  output_coverage_metric: True
+
+network_params:
+  actor:
+    - 64
+    - 64
+    - 64
+  
+  critic:
+    - 64
+    - 64
+    - 64
+  
+  reward_model:
+    - 32
+    - 64
+    - 64
+    - 32
+  
+  next_state_model:
+    - 32
+    - 64
+    - 64
+    - 32

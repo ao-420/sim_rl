@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.evaluation.noise_evaluation.noise_evaluation &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">sim_rl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sim_rl.evaluation.noise_evaluation.noise_evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sim_rl.evaluation.noise_evaluation.noise_evaluation</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This class will be used to evaluate the effect of environmental noise on the performance of the agent</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># Get the absolute path of the parent directory (i.e., the root of your project)</span>
+<span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="c1"># Add the parent directory to sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">rl_env.RL_Environment</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">queue_env.queueing_network</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">foundations.core_functions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">foundations.core_functions</span> <span class="kn">import</span> <span class="n">Engine</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">queue_env.queueing_network</span> <span class="kn">import</span> <span class="n">Queue_network</span>
+<span class="kn">from</span> <span class="nn">queue_env.queue_base_functions</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<span class="c1"># Definition of the Noisy Network class variant</span>
+<div class="viewcode-block" id="NoisyNetwork">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.noise_evaluation.html#sim_rl.evaluation.noise_evaluation.noise_evaluation.NoisyNetwork">[docs]</a>
+<span class="k">class</span> <span class="nc">NoisyNetwork</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">variance</span><span class="p">,</span> <span class="n">num_sim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">temperature</span> <span class="o">=</span> <span class="mf">0.15</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            frequency(float ): the frequency at which noise is added to the environment - enforce that its between 0 and 1</span>
+<span class="sd">            mean (float): Mean of the distribution from which the noise is sampled</span>
+<span class="sd">            variance (float): Variance of the distribution from which the noise is sampled</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span> <span class="o">=</span> <span class="n">frequency</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">=</span> <span class="n">mean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variance</span> <span class="o">=</span> <span class="n">variance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_sim</span> <span class="o">=</span> <span class="n">num_sim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">({</span><span class="s2">&quot;num_sim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sim</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">},</span> <span class="n">config_file</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_params</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NoisyNetwork.compute_increment">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.noise_evaluation.html#sim_rl.evaluation.noise_evaluation.noise_evaluation.NoisyNetwork.compute_increment">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_increment</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This function is main entry point for adding noise to the environment. This function samples from a normal distribution with mean and variance specified in the constructor and</span>
+<span class="sd">        returns the noise increment to be added to the environment with a probability specified by the frequency parameter.</span>
+<span class="sd">        Args:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">():</span>
+            <span class="c1"># Determines whether we are currently at a noise injection interval</span>
+            <span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">noise</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="NoisyNetwork.get_noisy_env">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.noise_evaluation.html#sim_rl.evaluation.noise_evaluation.noise_evaluation.NoisyNetwork.get_noisy_env">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_noisy_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">q_args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">qn_net</span><span class="o">.</span><span class="n">q_args</span>
+        <span class="n">entry_node_encountered</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">edge_type</span> <span class="ow">in</span> <span class="n">q_args</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;arrival_f&quot;</span> <span class="ow">in</span> <span class="n">q_args</span><span class="p">[</span><span class="n">edge_type</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">max_arrival_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;arrival_rate&quot;</span><span class="p">][</span>
+                    <span class="n">entry_node_encountered</span>
+                <span class="p">]</span>
+                <span class="n">rate</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_arrival_rate</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_arrival_rate</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="p">)</span>
+                <span class="c1"># the noise is added to the arrival rate here</span>
+                <span class="n">q_args</span><span class="p">[</span><span class="n">edge_type</span><span class="p">][</span><span class="s2">&quot;arrival_f&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">:</span> <span class="n">poisson_random_measure</span><span class="p">(</span>
+                        <span class="n">t</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">max_arrival_rate</span>
+                    <span class="p">)</span>
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_increment</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">q_args</span><span class="p">[</span><span class="n">edge_type</span><span class="p">][</span><span class="s2">&quot;noise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_increment</span><span class="p">()</span>
+                <span class="n">entry_node_encountered</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">org_net</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environment</span><span class="o">.</span><span class="n">qn_net</span>
+        <span class="n">new_net</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">org_net</span><span class="p">)</span>
+        <span class="n">new_net</span><span class="o">.</span><span class="n">process_input</span><span class="p">(</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">lamda</span><span class="p">,</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">miu</span><span class="p">,</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">q_classes</span><span class="p">,</span>
+            <span class="n">q_args</span><span class="p">,</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">adja_list</span><span class="p">,</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">edge_list</span><span class="p">,</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">,</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">max_agents</span><span class="p">,</span>
+            <span class="n">org_net</span><span class="o">.</span><span class="n">sim_jobs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">new_net</span><span class="o">.</span><span class="n">create_env</span><span class="p">()</span>
+        <span class="n">noisy_environment</span> <span class="o">=</span> <span class="n">RLEnv</span><span class="p">(</span><span class="n">qn_net</span><span class="o">=</span><span class="n">new_net</span><span class="p">,</span> <span class="n">num_sim</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">noisy_environment</span></div>
+
+
+<div class="viewcode-block" id="NoisyNetwork.train">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.noise_evaluation.html#sim_rl.evaluation.noise_evaluation.noise_evaluation.NoisyNetwork.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">save_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;output_csv_noisy&quot;</span>
+    <span class="p">):</span>
+
+        <span class="p">(</span>
+            <span class="n">next_state_model_list_all</span><span class="p">,</span>
+            <span class="n">critic_loss_list</span><span class="p">,</span>
+            <span class="n">actor_loss_list</span><span class="p">,</span>
+            <span class="n">reward_by_episode</span><span class="p">,</span>
+            <span class="n">action_dict</span><span class="p">,</span>
+            <span class="n">gradient_dict</span><span class="p">,</span>
+            <span class="n">transition_probas</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+
+        <span class="n">evaluation_dir</span> <span class="o">=</span> <span class="s2">&quot;evaluation&quot;</span>
+        <span class="n">noise_dir</span> <span class="o">=</span> <span class="s2">&quot;noise_evaluation&quot;</span>
+        <span class="n">csv_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">evaluation_dir</span><span class="p">,</span> <span class="n">noise_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_file</span><span class="p">:</span>
+            <span class="n">save_all</span><span class="p">(</span>
+                <span class="n">next_state_model_list_all</span><span class="p">,</span>
+                <span class="n">critic_loss_list</span><span class="p">,</span>
+                <span class="n">actor_loss_list</span><span class="p">,</span>
+                <span class="n">reward_by_episode</span><span class="p">,</span>
+                <span class="n">action_dict</span><span class="p">,</span>
+                <span class="n">gradient_dict</span><span class="p">,</span>
+                <span class="n">transition_probas</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">csv_filepath</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="NoisyNetwork.start_evaluation">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.noise_evaluation.html#sim_rl.evaluation.noise_evaluation.noise_evaluation.NoisyNetwork.start_evaluation">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">noisy_env</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">agent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">noisy_env</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">noisy_env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_noisy_env</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">agent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">agent_path</span> <span class="o">=</span> <span class="s2">&quot;agents&quot;</span>
+            <span class="n">agent</span> <span class="o">=</span> <span class="s2">&quot;trained_agent.pt&quot;</span>
+            <span class="n">path_to_saved_agent</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">agent_path</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
+            <span class="n">agent</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path_to_saved_agent</span><span class="p">)</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">start_evaluation</span><span class="p">(</span><span class="n">noisy_env</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total reward on environment with external noise is:</span><span class="si">{</span><span class="n">reward</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">reward</span></div>
+</div>
+
+
+
+<span class="c1"># Running the code for the noise evaluation</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="n">frequency</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">timesteps</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">temperature</span> <span class="o">=</span> <span class="mf">0.15</span>
+
+    <span class="c1"># # Define the object of the NoiseEvaluator class</span>
+    <span class="n">config_file</span> <span class="o">=</span> <span class="s2">&quot;user_config/configuration.yml&quot;</span>
+    <span class="n">eval_file</span> <span class="o">=</span> <span class="s2">&quot;user_config/eval_hyperparams.yml&quot;</span>
+    <span class="n">noisy_net</span> <span class="o">=</span> <span class="n">NoisyNetwork</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">frequency</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">variance</span><span class="p">,</span> <span class="n">temperature</span><span class="p">)</span>
+    <span class="n">noisy_env</span> <span class="o">=</span> <span class="n">noisy_net</span><span class="o">.</span><span class="n">get_noisy_env</span><span class="p">()</span>
+
+    <span class="c1"># # When introducing noise in the training we call the start_train method of the NoiseEvaluator object</span>
+    <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="n">load_hyperparams</span><span class="p">(</span><span class="n">eval_file</span><span class="p">)</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">create_ddpg_agent</span><span class="p">(</span><span class="n">noisy_env</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+    <span class="n">noisy_net</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">noisy_env</span><span class="p">)</span>
+    <span class="c1"># noise_evaluator.start_train(eval_env, agent,save_file = True, data_filename = &#39;output_csv&#39;, image_filename = &#39;output_plots&#39;)</span>
+
+    <span class="c1"># # When introducing noise in the the control of the control of the environment we first define the agent</span>
+    <span class="n">agent_path</span> <span class="o">=</span> <span class="s2">&quot;agents&quot;</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="s2">&quot;trained_agent.pt&quot;</span>
+    <span class="n">path_to_saved_agent</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">agent_path</span><span class="p">,</span> <span class="n">agent</span><span class="p">)</span>
+    <span class="n">saved_agent</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path_to_saved_agent</span><span class="p">)</span>
+    <span class="n">noisy_net</span><span class="o">.</span><span class="n">start_evaluation</span><span class="p">(</span><span class="n">noisy_env</span><span class="p">,</span> <span class="n">saved_agent</span><span class="p">,</span> <span class="n">time_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="c1"># noise_evaluator.start_evaluation(eval_env , saved_agent,timesteps)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

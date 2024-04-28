@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.queue_env.queue_base_functions &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">sim_rl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sim_rl.queue_env.queue_base_functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sim_rl.queue_env.queue_base_functions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">queueing_tool</span> <span class="k">as</span> <span class="nn">qt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">agents.ddpg_agent</span> <span class="kn">import</span> <span class="n">DDPGAgent</span>
+<span class="kn">from</span> <span class="nn">queue_env.queueing_network</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">foundations.core_plotting</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">queueing_tool.queues.queue_servers</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="get_num_connections">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.get_num_connections">[docs]</a>
+<span class="k">def</span> <span class="nf">get_num_connections</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the total number of connections and identifies exit nodes within the adjacency list of a network.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - adjacent_list (dict): A dictionary where keys are start nodes and values are lists of end nodes they connect to.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - tuple: A tuple containing the total number of connections (int) and a list of exit nodes ([]).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">exit_nodes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">adjacent_list</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">end_node_list</span> <span class="o">=</span> <span class="n">adjacent_list</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">end_node</span> <span class="ow">in</span> <span class="n">end_node_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">end_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">adjacent_list</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">end_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exit_nodes</span><span class="p">:</span>
+                    <span class="n">exit_nodes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_node</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">exit_nodes</span></div>
+
+
+
+<div class="viewcode-block" id="load_config">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.load_config">[docs]</a>
+<span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="n">env_param_filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load configuration parameters from a YAML file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - config_filepath (str): The file path to the configuration YAML file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary containing the configuration parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Get the directory of the current script</span>
+    <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+    <span class="c1"># Go up one directory to the MScDataSparqProject directory</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_dir</span><span class="p">)</span>
+
+    <span class="c1"># Build the path to the configuration file</span>
+    <span class="n">abs_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">env_param_filepath</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">env_param_file</span><span class="p">:</span>
+        <span class="n">config_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">env_param_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+    <span class="c1"># Convert lists to tuples</span>
+    <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">config_params</span></div>
+
+
+
+<div class="viewcode-block" id="make_edge_list">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.make_edge_list">[docs]</a>
+<span class="k">def</span> <span class="nf">make_edge_list</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">,</span> <span class="n">exit_nodes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates an edge list with types for each connection based on the adjacency list and identified exit nodes.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - adjacent_list (dict): A dictionary representing the network&#39;s adjacency list.</span>
+<span class="sd">    - exit_nodes (list): A list of nodes identified as exit points in the network.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary representing the edge list, where keys are start nodes, and values are dictionaries of end nodes with their edge types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">edge_type</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">adjacent_list</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">end_node_list</span> <span class="o">=</span> <span class="n">adjacent_list</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span>
+
+        <span class="n">connection_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">end_node</span> <span class="ow">in</span> <span class="n">end_node_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">end_node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exit_nodes</span><span class="p">:</span>
+                <span class="n">connection_dict</span><span class="p">[</span><span class="n">end_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_type</span>
+                <span class="n">edge_type</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">connection_dict</span><span class="p">[</span><span class="n">end_node</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">edge_list</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">connection_dict</span>
+
+    <span class="k">return</span> <span class="n">edge_list</span></div>
+
+
+
+<div class="viewcode-block" id="make_unique_edge_type">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.make_unique_edge_type">[docs]</a>
+<span class="k">def</span> <span class="nf">make_unique_edge_type</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">,</span> <span class="n">edge_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assigns a unique edge type to connections between nodes based on the adjacency and edge lists.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - adjacent_list (dict): A dictionary representing the network&#39;s adjacency list.</span>
+<span class="sd">    - edge_list (dict): A dictionary representing the network&#39;s edge list, indicating connections between nodes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary where keys are node identifiers, and values are lists of unique edge types for edges ending at that node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">connection_info</span> <span class="o">=</span> <span class="n">get_connection_info</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">)</span>
+    <span class="n">edge_type_info</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">end_node</span> <span class="ow">in</span> <span class="n">connection_info</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">start_node_list</span> <span class="o">=</span> <span class="n">connection_info</span><span class="p">[</span><span class="n">end_node</span><span class="p">]</span>
+        <span class="n">edge_type_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">start_node_list</span><span class="p">:</span>
+            <span class="n">edge_type</span> <span class="o">=</span> <span class="n">edge_list</span><span class="p">[</span><span class="n">start_node</span><span class="p">][</span><span class="n">end_node</span><span class="p">]</span>
+            <span class="n">edge_type_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge_type</span><span class="p">)</span>
+        <span class="n">edge_type_info</span><span class="p">[</span><span class="n">end_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">edge_type_list</span>
+
+    <span class="k">return</span> <span class="n">edge_type_info</span>  <span class="c1"># keys are node_id, values are the edge_types</span></div>
+
+
+
+<div class="viewcode-block" id="get_connection_info">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.get_connection_info">[docs]</a>
+<span class="k">def</span> <span class="nf">get_connection_info</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a dictionary mapping each node to a list of nodes that connect to it.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - adjacent_list (dict): A dictionary representing the network&#39;s adjacency list.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary where keys are end nodes, and values are lists of start nodes that connect to these end nodes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">connection_info</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">adjacent_list</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">end_node</span> <span class="ow">in</span> <span class="n">adjacent_list</span><span class="p">[</span><span class="n">start_node</span><span class="p">]:</span>
+            <span class="n">connect_start_node_list</span> <span class="o">=</span> <span class="n">connection_info</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">end_node</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">connect_start_node_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">start_node</span><span class="p">)</span>
+            <span class="n">connection_info</span><span class="p">[</span><span class="n">end_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">connect_start_node_list</span>
+
+    <span class="k">return</span> <span class="n">connection_info</span></div>
+
+
+
+<div class="viewcode-block" id="create_params">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.create_params">[docs]</a>
+<span class="k">def</span> <span class="nf">create_params</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate parameters for the queueing environment based on a configuration file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - config_file (str): The file path to the environment configuration file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Multiple return values including lists and dictionaries essential for creating the queueing environment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">config_params</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="n">miu_dict</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">]</span>
+    <span class="n">adjacent_list</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;adjacent_list&quot;</span><span class="p">]</span>
+    <span class="n">max_agents</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;max_agents&quot;</span><span class="p">]</span>
+    <span class="n">sim_jobs</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;sim_jobs&quot;</span><span class="p">]</span>
+    <span class="n">entry_nodes</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span>
+    <span class="n">exit_nodes</span> <span class="o">=</span> <span class="n">get_num_connections</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">)</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">make_edge_list</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">,</span> <span class="n">exit_nodes</span><span class="p">)</span>
+
+    <span class="n">q_classes</span> <span class="o">=</span> <span class="n">create_q_classes</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
+
+    <span class="n">edge_type_info</span> <span class="o">=</span> <span class="n">make_unique_edge_type</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">,</span> <span class="n">edge_list</span><span class="p">)</span>
+
+    <span class="n">buffer_size_for_each_queue</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;buffer_size_for_each_queue&quot;</span><span class="p">]</span>
+    <span class="n">q_args</span> <span class="o">=</span> <span class="n">create_q_args</span><span class="p">(</span>
+        <span class="n">edge_type_info</span><span class="p">,</span>
+        <span class="n">config_params</span><span class="p">,</span>
+        <span class="n">miu_dict</span><span class="p">,</span>
+        <span class="n">buffer_size_for_each_queue</span><span class="p">,</span>
+        <span class="n">exit_nodes</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">arrival_rate</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;arrival_rate&quot;</span><span class="p">]</span>
+
+    <span class="n">transition_proba_all</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;transition_proba_all&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">arrival_rate</span><span class="p">,</span>
+        <span class="n">miu_dict</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+        <span class="n">q_args</span><span class="p">,</span>
+        <span class="n">adjacent_list</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">transition_proba_all</span><span class="p">,</span>
+        <span class="n">max_agents</span><span class="p">,</span>
+        <span class="n">sim_jobs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_entry_nodes">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.get_entry_nodes">[docs]</a>
+<span class="k">def</span> <span class="nf">get_entry_nodes</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+    <span class="n">config_params</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="n">entry_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">entry_node</span><span class="p">)</span> <span class="k">for</span> <span class="n">entry_node</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">entry_nodes</span></div>
+
+
+
+<div class="viewcode-block" id="create_q_classes">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.create_q_classes">[docs]</a>
+<span class="k">def</span> <span class="nf">create_q_classes</span><span class="p">(</span><span class="n">edge_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a dictionary mapping queue identifiers to their corresponding queue class.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - num_queues (int): The number of queues to create classes for, excluding the null queue.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary where keys are queue identifiers (starting from 1) and values are queue class types.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">q_classes</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">edge_list</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">end_nodes_dict</span> <span class="o">=</span> <span class="n">edge_list</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">end_node</span> <span class="ow">in</span> <span class="n">end_nodes_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">edge_index</span> <span class="o">=</span> <span class="n">end_nodes_dict</span><span class="p">[</span><span class="n">end_node</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">end_node</span> <span class="ow">in</span> <span class="n">edge_list</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">q_classes</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">LossQueue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">q_classes</span><span class="p">[</span><span class="n">edge_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">NullQueue</span>
+    <span class="k">return</span> <span class="n">q_classes</span></div>
+
+
+
+<div class="viewcode-block" id="get_node_tuple_from_edgetype">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.get_node_tuple_from_edgetype">[docs]</a>
+<span class="k">def</span> <span class="nf">get_node_tuple_from_edgetype</span><span class="p">(</span><span class="n">edge_list</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a dictionary mapping each edge type to a list of tuples, where each tuple represents an edge</span>
+<span class="sd">    from a source node to an end node.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - edge_list (dict): A dictionary where each key is a source node and its value is another dictionary.</span>
+<span class="sd">      The nested dictionary&#39;s key is the end node and its value is the edge type.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary where keys are edge types and values are lists of tuples (source_node, end_node)</span>
+<span class="sd">      representing the edges of that type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">node_tuple_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">source_node</span><span class="p">,</span> <span class="n">endnode_type_dict</span> <span class="ow">in</span> <span class="n">edge_list</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">end_node</span><span class="p">,</span> <span class="n">edge_type</span> <span class="ow">in</span> <span class="n">endnode_type_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">edge_type</span> <span class="ow">in</span> <span class="n">node_tuple_dict</span><span class="p">:</span>
+                <span class="n">node_tuple_dict</span><span class="p">[</span><span class="n">edge_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">source_node</span><span class="p">,</span> <span class="n">end_node</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_tuple_dict</span><span class="p">[</span><span class="n">edge_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">source_node</span><span class="p">,</span> <span class="n">end_node</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">node_tuple_dict</span></div>
+
+
+
+<div class="viewcode-block" id="get_node_id">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.get_node_id">[docs]</a>
+<span class="k">def</span> <span class="nf">get_node_id</span><span class="p">(</span><span class="n">edge_type</span><span class="p">,</span> <span class="n">edge_type_info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds and returns the node ID associated with a specific edge type.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - edge_type (any): The type of the edge for which the node ID is to be found.</span>
+<span class="sd">    - edge_type_info (dict): A dictionary where each key is a node ID and its value is a list of edge types</span>
+<span class="sd">      associated with that node.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - any: The node ID for the specified edge type if found; otherwise, None if no node has the specified edge type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">edge_type_info</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">edge_type</span> <span class="ow">in</span> <span class="n">edge_type_info</span><span class="p">[</span><span class="n">node</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">node</span></div>
+
+
+
+<div class="viewcode-block" id="create_q_args">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.create_q_args">[docs]</a>
+<span class="k">def</span> <span class="nf">create_q_args</span><span class="p">(</span>
+    <span class="n">edge_type_info</span><span class="p">,</span>
+    <span class="n">config_params</span><span class="p">,</span>
+    <span class="n">miu_dict</span><span class="p">,</span>
+    <span class="n">buffer_size_for_each_queue</span><span class="p">,</span>
+    <span class="n">exit_nodes</span><span class="p">,</span>
+    <span class="n">edge_list</span><span class="p">,</span>
+    <span class="n">q_classes</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Constructs arguments for queue initialization based on the network configuration.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - edge_type_info (dict): Information about edge types for each node.</span>
+<span class="sd">    - config_params (dict): Configuration parameters including service rates and buffer sizes.</span>
+<span class="sd">    - miu_dict (dict): A dictionary mapping nodes to their service rates.</span>
+<span class="sd">    - buffer_size_for_each_queue (dict): A dictionary mapping queue identifiers to their buffer sizes.</span>
+<span class="sd">    - exit_nodes (list): A list of nodes identified as exit points in the network.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary of queue arguments where keys are queue identifiers, and values are dictionaries of arguments needed for initializing each queue.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">q_args</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">edge_type_lists</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">edge_type_info</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exit_nodes</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">edge_type_info</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">edge_type_lists</span> <span class="o">+=</span> <span class="n">values</span>
+
+    <span class="n">node_tuple_by_edgetype</span> <span class="o">=</span> <span class="n">get_node_tuple_from_edgetype</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
+    <span class="n">entry_node_encountered</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">env_entry_nodes</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]]</span>
+
+    <span class="k">for</span> <span class="n">edge_type</span> <span class="ow">in</span> <span class="n">edge_type_lists</span><span class="p">:</span>
+        <span class="n">queue_type</span> <span class="o">=</span> <span class="n">q_classes</span><span class="p">[</span><span class="n">edge_type</span><span class="p">]</span>
+        <span class="n">node_id</span> <span class="o">=</span> <span class="n">get_node_id</span><span class="p">(</span><span class="n">edge_type</span><span class="p">,</span> <span class="n">edge_type_info</span><span class="p">)</span>
+        <span class="n">service_rate</span> <span class="o">=</span> <span class="n">miu_dict</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">queue_type</span> <span class="o">==</span> <span class="n">LossQueue</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node_tuple_by_edgetype</span><span class="p">[</span><span class="n">edge_type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]:</span>
+                <span class="n">max_arrival_rate</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;arrival_rate&quot;</span><span class="p">][</span><span class="n">entry_node_encountered</span><span class="p">]</span>
+                <span class="n">rate</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_arrival_rate</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_arrival_rate</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+                <span class="p">)</span>
+                <span class="n">q_args</span><span class="p">[</span><span class="n">edge_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;arrival_f&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">rate</span><span class="p">:</span> <span class="n">poisson_random_measure</span><span class="p">(</span>
+                        <span class="n">t</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">max_arrival_rate</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;service_f&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="n">en</span><span class="o">=</span><span class="n">node_id</span><span class="p">:</span> <span class="n">t</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">miu_dict</span><span class="p">[</span><span class="n">en</span><span class="p">]),</span>
+                    <span class="s2">&quot;qbuffer&quot;</span><span class="p">:</span> <span class="n">buffer_size_for_each_queue</span><span class="p">[</span><span class="n">edge_type</span><span class="p">],</span>
+                    <span class="s2">&quot;service_rate&quot;</span><span class="p">:</span> <span class="n">service_rate</span><span class="p">,</span>
+                    <span class="s2">&quot;active_cap&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;active_status&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">entry_node_encountered</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">q_args</span><span class="p">[</span><span class="n">edge_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;service_f&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="n">en</span><span class="o">=</span><span class="n">node_id</span><span class="p">:</span> <span class="n">t</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">miu_dict</span><span class="p">[</span><span class="n">en</span><span class="p">]),</span>
+                    <span class="s2">&quot;qbuffer&quot;</span><span class="p">:</span> <span class="n">buffer_size_for_each_queue</span><span class="p">[</span><span class="n">edge_type</span><span class="p">],</span>
+                    <span class="s2">&quot;service_rate&quot;</span><span class="p">:</span> <span class="n">service_rate</span><span class="p">,</span>
+                    <span class="s2">&quot;active_cap&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;active_status&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">q_args</span></div>
+
+
+
+<div class="viewcode-block" id="create_queueing_env">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queue_base_functions.create_queueing_env">[docs]</a>
+<span class="k">def</span> <span class="nf">create_queueing_env</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create and configure a queueing environment based on a given configuration file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - config_file (str): The file path to the environment configuration file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Queue_network: An instance of the queueing environment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span>
+        <span class="n">arrival_rate</span><span class="p">,</span>
+        <span class="n">miu_list</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+        <span class="n">q_args</span><span class="p">,</span>
+        <span class="n">adjacent_list</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">transition_proba_all</span><span class="p">,</span>
+        <span class="n">max_agents</span><span class="p">,</span>
+        <span class="n">sim_time</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">create_params</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="n">q_net</span> <span class="o">=</span> <span class="n">Queue_network</span><span class="p">()</span>
+    <span class="n">q_net</span><span class="o">.</span><span class="n">process_input</span><span class="p">(</span>
+        <span class="n">arrival_rate</span><span class="p">,</span>
+        <span class="n">miu_list</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+        <span class="n">q_args</span><span class="p">,</span>
+        <span class="n">adjacent_list</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">transition_proba_all</span><span class="p">,</span>
+        <span class="n">max_agents</span><span class="p">,</span>
+        <span class="n">sim_time</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">q_net</span><span class="o">.</span><span class="n">create_env</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">q_net</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

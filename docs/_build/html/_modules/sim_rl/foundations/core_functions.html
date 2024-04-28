@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.foundations.core_functions &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">sim_rl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sim_rl.foundations.core_functions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sim_rl.foundations.core_functions</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+
+<span class="kn">from</span> <span class="nn">agents.ddpg_agent</span> <span class="kn">import</span> <span class="n">DDPGAgent</span>
+<span class="kn">from</span> <span class="nn">queue_env.queueing_network</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">tuning.wandb_tuning</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">tuning.ray_tuning</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">foundations.core_plotting</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">queueing_tool.network.queue_network</span> <span class="kn">import</span> <span class="n">QueueNetwork</span>
+<span class="kn">from</span> <span class="nn">queueing_tool.queues.queue_servers</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_config">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.load_config">[docs]</a>
+<span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="n">env_param_filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load configuration parameters from a YAML file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - config_filepath (str): The file path to the configuration YAML file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary containing the configuration parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the directory of the current script</span>
+    <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="c1"># Go up one directory to the MScDataSparqProject directory</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_dir</span><span class="p">)</span>
+    <span class="c1"># Build the path to the configuration file</span>
+    <span class="n">abs_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">env_param_filepath</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">param_file</span><span class="p">:</span>
+        <span class="n">config_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">param_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+    <span class="c1"># Convert lists to tuples</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">tuple</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span><span class="p">:</span>
+                <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">config_params</span></div>
+
+
+
+<div class="viewcode-block" id="load_hyperparams">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.load_hyperparams">[docs]</a>
+<span class="k">def</span> <span class="nf">load_hyperparams</span><span class="p">(</span><span class="n">eval_param_filepath</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load hyperparameters from a YAML file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - param_filepath (str): The file path to the hyperparameters YAML file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - tuple: A tuple containing two dictionaries, `params` for hyperparameters and `hidden` for hidden layer configurations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_dir</span><span class="p">)</span>
+    <span class="n">abs_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">eval_param_filepath</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">env_param_file</span><span class="p">:</span>
+        <span class="n">parameter_dictionary</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">env_param_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;rl_params&quot;</span><span class="p">]</span>
+    <span class="n">hidden</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;network_params&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span></div>
+
+
+
+<div class="viewcode-block" id="create_params">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.create_params">[docs]</a>
+<span class="k">def</span> <span class="nf">create_params</span><span class="p">(</span>
+    <span class="n">config_file</span><span class="p">,</span> <span class="n">disrupt_case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">disrupt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">queue_index</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deactivate_node</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate parameters for the queueing environment based on a configuration file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - config_file (str): The file path to the environment configuration file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Multiple return values including lists and dictionaries essential for creating the queueing environment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config_params</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="n">miu_dict</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">]</span>
+    <span class="n">adjacent_list</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;adjacent_list&quot;</span><span class="p">]</span>
+    <span class="n">max_agents</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;max_agents&quot;</span><span class="p">]</span>
+    <span class="n">sim_jobs</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;sim_jobs&quot;</span><span class="p">]</span>
+    <span class="n">entry_nodes</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span>
+    <span class="n">exit_nodes</span> <span class="o">=</span> <span class="n">get_num_connections</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">)</span>
+    <span class="n">edge_list</span> <span class="o">=</span> <span class="n">make_edge_list</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">,</span> <span class="n">exit_nodes</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">disrupt_case</span><span class="p">:</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="mf">0.1</span>
+        <span class="n">miu_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">miu_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">miu_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">()}</span>
+
+        <span class="k">if</span> <span class="n">disrupt</span><span class="p">:</span>
+            <span class="n">miu_dict</span><span class="p">[</span><span class="n">deactivate_node</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">miu_dict</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">]</span>
+
+    <span class="n">q_classes</span> <span class="o">=</span> <span class="n">create_q_classes</span><span class="p">(</span><span class="n">edge_list</span><span class="p">)</span>
+    <span class="n">edge_type_info</span> <span class="o">=</span> <span class="n">make_unique_edge_type</span><span class="p">(</span><span class="n">adjacent_list</span><span class="p">,</span> <span class="n">edge_list</span><span class="p">)</span>
+    <span class="n">buffer_size_for_each_queue</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;buffer_size_for_each_queue&quot;</span><span class="p">]</span>
+    <span class="n">q_args</span> <span class="o">=</span> <span class="n">create_q_args</span><span class="p">(</span>
+        <span class="n">edge_type_info</span><span class="p">,</span>
+        <span class="n">config_params</span><span class="p">,</span>
+        <span class="n">miu_dict</span><span class="p">,</span>
+        <span class="n">buffer_size_for_each_queue</span><span class="p">,</span>
+        <span class="n">exit_nodes</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">arrival_rate</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;arrival_rate&quot;</span><span class="p">]</span>
+    <span class="n">transition_proba_all</span> <span class="o">=</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;transition_proba_all&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">arrival_rate</span><span class="p">,</span>
+        <span class="n">miu_dict</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+        <span class="n">q_args</span><span class="p">,</span>
+        <span class="n">adjacent_list</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">transition_proba_all</span><span class="p">,</span>
+        <span class="n">max_agents</span><span class="p">,</span>
+        <span class="n">sim_jobs</span><span class="p">,</span>
+        <span class="n">entry_nodes</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_queueing_env">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.create_queueing_env">[docs]</a>
+<span class="k">def</span> <span class="nf">create_queueing_env</span><span class="p">(</span>
+    <span class="n">config_file</span><span class="p">,</span> <span class="n">disrupt_case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">disrupt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">queue_index</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">deactivate_node</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create and configure a queueing environment based on a given configuration file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - config_file (str): The file path to the environment configuration file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Queue_network: An instance of the queueing environment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span>
+        <span class="n">arrival_rate</span><span class="p">,</span>
+        <span class="n">miu_dict</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+        <span class="n">q_args</span><span class="p">,</span>
+        <span class="n">adjacent_list</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">transition_proba_all</span><span class="p">,</span>
+        <span class="n">max_agents</span><span class="p">,</span>
+        <span class="n">sim_jobs</span><span class="p">,</span>
+        <span class="n">entry_nodes</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">create_params</span><span class="p">(</span>
+        <span class="n">config_file</span><span class="p">,</span>
+        <span class="n">disrupt_case</span><span class="o">=</span><span class="n">disrupt_case</span><span class="p">,</span>
+        <span class="n">disrupt</span><span class="o">=</span><span class="n">disrupt</span><span class="p">,</span>
+        <span class="n">queue_index</span><span class="o">=</span><span class="n">queue_index</span><span class="p">,</span>
+        <span class="n">deactivate_node</span><span class="o">=</span><span class="n">deactivate_node</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">q_net</span> <span class="o">=</span> <span class="n">Queue_network</span><span class="p">()</span>
+    <span class="n">q_net</span><span class="o">.</span><span class="n">process_input</span><span class="p">(</span>
+        <span class="n">arrival_rate</span><span class="p">,</span>
+        <span class="n">miu_dict</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+        <span class="n">q_args</span><span class="p">,</span>
+        <span class="n">adjacent_list</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">transition_proba_all</span><span class="p">,</span>
+        <span class="n">max_agents</span><span class="p">,</span>
+        <span class="n">sim_jobs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">q_net</span><span class="o">.</span><span class="n">create_env</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">q_net</span></div>
+
+
+
+<div class="viewcode-block" id="create_RL_env">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.create_RL_env">[docs]</a>
+<span class="k">def</span> <span class="nf">create_RL_env</span><span class="p">(</span><span class="n">q_net</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">entry_nodes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a reinforcement learning environment.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - q_net (Queue_network): The queueing network environment.</span>
+<span class="sd">    - params (dict): Parameters for the RL environment.</span>
+<span class="sd">    - hidden (dict): Hidden layer configurations.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - RLEnv: An instance of the RL environment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">RLEnv</span><span class="p">(</span>
+        <span class="n">q_net</span><span class="p">,</span>
+        <span class="n">num_sim</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_sim&quot;</span><span class="p">],</span>
+        <span class="n">entry_nodes</span><span class="o">=</span><span class="n">entry_nodes</span><span class="p">,</span>
+        <span class="n">temperature</span><span class="o">=</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;temperature&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">env</span></div>
+
+
+
+<div class="viewcode-block" id="create_simulation_env">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.create_simulation_env">[docs]</a>
+<span class="k">def</span> <span class="nf">create_simulation_env</span><span class="p">(</span>
+    <span class="n">params</span><span class="p">,</span>
+    <span class="n">config_file</span><span class="p">,</span>
+    <span class="n">disrupt_case</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">disrupt</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">queue_index</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">deactivate_node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a simulation environment for reinforcement learning based on given parameters and a configuration file.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - params (dict): Hyperparameters for the simulation.</span>
+<span class="sd">    - hidden (dict): Hidden layer configurations.</span>
+<span class="sd">    - config_file (str, optional): The file path to the environment configuration file. Defaults to &quot;configuration_file.yaml&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - RLEnv: The RL environment ready for simulation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">q_net</span> <span class="o">=</span> <span class="n">create_queueing_env</span><span class="p">(</span>
+        <span class="n">config_file</span><span class="p">,</span>
+        <span class="n">disrupt_case</span><span class="p">,</span>
+        <span class="n">disrupt</span><span class="o">=</span><span class="n">disrupt</span><span class="p">,</span>
+        <span class="n">queue_index</span><span class="o">=</span><span class="n">queue_index</span><span class="p">,</span>
+        <span class="n">deactivate_node</span><span class="o">=</span><span class="n">deactivate_node</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">entry_nodes</span> <span class="o">=</span> <span class="n">get_entry_nodes</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="n">RL_env</span> <span class="o">=</span> <span class="n">create_RL_env</span><span class="p">(</span><span class="n">q_net</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">entry_nodes</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">RL_env</span></div>
+
+
+
+<div class="viewcode-block" id="get_param_for_state_exploration">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.get_param_for_state_exploration">[docs]</a>
+<span class="k">def</span> <span class="nf">get_param_for_state_exploration</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract parameters necessary for state exploration.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - params (dict): Hyperparameters including those needed for state exploration.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - tuple: A tuple containing parameters specific to state exploration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_sample</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_sample&quot;</span><span class="p">]</span>
+    <span class="n">device_here</span> <span class="o">=</span> <span class="n">device</span>
+    <span class="n">w1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;w1&quot;</span><span class="p">]</span>
+    <span class="n">w2</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;w2&quot;</span><span class="p">]</span>
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;epsilon_state_exploration&quot;</span><span class="p">]</span>
+    <span class="n">reset</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;reset&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">reset</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">reset_frequency</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">reset_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;reset_frequency&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">num_sample</span><span class="p">,</span> <span class="n">device_here</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">reset</span><span class="p">,</span> <span class="n">reset_frequency</span></div>
+
+
+
+<div class="viewcode-block" id="get_params_for_train">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.get_params_for_train">[docs]</a>
+<span class="k">def</span> <span class="nf">get_params_for_train</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract parameters necessary for training.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - params (dict): Hyperparameters including those needed for training.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - tuple: A tuple containing parameters specific to training.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_episodes</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_episodes&quot;</span><span class="p">]</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span>
+    <span class="n">num_epochs</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">]</span>
+    <span class="n">time_steps</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;time_steps&quot;</span><span class="p">]</span>
+    <span class="n">target_update_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_update_frequency&quot;</span><span class="p">]</span>
+    <span class="n">num_train_AC</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_train_AC&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">num_episodes</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">num_epochs</span><span class="p">,</span>
+        <span class="n">time_steps</span><span class="p">,</span>
+        <span class="n">target_update_frequency</span><span class="p">,</span>
+        <span class="n">num_train_AC</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="init_transition_proba">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.init_transition_proba">[docs]</a>
+<span class="k">def</span> <span class="nf">init_transition_proba</span><span class="p">(</span><span class="n">env</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initializes a dictionary to hold transition probabilities for each start node that has multiple</span>
+<span class="sd">    possible next nodes.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - env (object): An environment object that includes a &#39;qn_net&#39; attribute. This &#39;qn_net&#39; attribute</span>
+<span class="sd">      should have an &#39;adja_list&#39; which is a dictionary mapping each node to its adjacent nodes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary with start nodes as keys. Each key maps to another dictionary, which will</span>
+<span class="sd">      eventually hold transition probabilities to possible next nodes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transition_proba</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">adjacent_lists</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">qn_net</span><span class="o">.</span><span class="n">adja_list</span>
+
+    <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">adjacent_lists</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjacent_lists</span><span class="p">[</span><span class="n">start_node</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">return</span> <span class="n">transition_proba</span></div>
+
+
+
+<div class="viewcode-block" id="update_transition_probas">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.update_transition_probas">[docs]</a>
+<span class="k">def</span> <span class="nf">update_transition_probas</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Updates a given dictionary of transition probabilities with new transition data from the environment.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - transition_probas (dict): The dictionary containing transition probabilities for nodes.</span>
+<span class="sd">    - env (object): An environment object that includes both &#39;transition_proba&#39; and &#39;qn_net&#39; attributes.</span>
+<span class="sd">      The &#39;qn_net&#39; attribute should contain a &#39;transition_proba&#39; dictionary detailing probabilities</span>
+<span class="sd">      of transitioning from one node to another.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: The updated transition probabilities dictionary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">transition_probas</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">next_nodes</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">next_proba_dict</span> <span class="o">=</span> <span class="n">transition_probas</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">next_node</span> <span class="ow">in</span> <span class="n">next_nodes</span><span class="p">:</span>
+            <span class="n">proba_list</span> <span class="o">=</span> <span class="n">next_proba_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">next_node</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">proba_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">proba_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">qn_net</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">][</span><span class="n">next_node</span><span class="p">])</span>
+            <span class="n">proba_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">][</span><span class="n">next_node</span><span class="p">])</span>
+            <span class="n">next_proba_dict</span><span class="p">[</span><span class="n">next_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">proba_list</span>
+
+        <span class="n">transition_probas</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_proba_dict</span>
+    <span class="k">return</span> <span class="n">transition_probas</span></div>
+
+
+
+<div class="viewcode-block" id="convert_format">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.convert_format">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_format</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a list of numerical state values into a dictionary mapping each index to its respective value.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - state (list): A list of numerical values representing a state.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - dict: A dictionary with indices as keys and the corresponding state values as values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">initial_states</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+        <span class="n">initial_states</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span>
+    <span class="k">return</span> <span class="n">initial_states</span></div>
+
+
+
+<div class="viewcode-block" id="save_agent">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.save_agent">[docs]</a>
+<span class="k">def</span> <span class="nf">save_agent</span><span class="p">(</span><span class="n">agent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Saves the trained RL agent to a file.</span>
+
+<span class="sd">    This function creates a directory named &#39;Agent&#39; in the current working directory if it doesn&#39;t exist,</span>
+<span class="sd">    and saves the given agent model to a file named &#39;tensor.pt&#39; within this directory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">base_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+    <span class="n">agent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;agents&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create the directory if it does not exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">agent_dir</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">agent_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Directory created at </span><span class="si">{</span><span class="n">agent_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">agent_dir</span><span class="p">,</span> <span class="s2">&quot;trained_agent.pt&quot;</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent saved successfully at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="train">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.train">[docs]</a>
+<span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">best_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">blockage_qn_net</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Conduct training sessions for a given agent and environment.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - params (dict): Hyperparameters for training.</span>
+<span class="sd">    - agent: The agent to be trained.</span>
+<span class="sd">    - env: The environment in which the agent operates.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Multiple values including lists that track various metrics through training.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">save_agent</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">best_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">best_params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">best_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">best_params</span>
+
+    <span class="n">next_state_model_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">reward_model_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">gradient_dict_all</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">action_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">gradient_dict_all</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">transition_probas</span> <span class="o">=</span> <span class="n">init_transition_proba</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+    <span class="n">actor_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">critic_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">reward_by_episode</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">num_episodes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">num_train_AC</span> <span class="o">=</span> <span class="n">get_params_for_train</span><span class="p">(</span>
+        <span class="n">params</span>
+    <span class="p">)</span>
+    <span class="n">latest_transition_proba</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Episode Progress&quot;</span><span class="p">):</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">blockage_qn_net</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">blockage_qn_net</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">latest_transition_proba</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">env</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">set_transitions</span><span class="p">(</span><span class="n">latest_transition_proba</span><span class="p">)</span>
+
+        <span class="n">env</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+        <span class="n">update</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Time Steps Progress&quot;</span><span class="p">):</span>
+
+            <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+
+            <span class="n">state_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">select_action</span><span class="p">(</span><span class="n">state_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">action_list</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">action_list</span><span class="p">):</span>
+                <span class="n">node_list</span> <span class="o">=</span> <span class="n">action_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="n">node_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">action_dict</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_list</span>
+
+            <span class="n">next_state_tensor</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get_next_state</span><span class="p">(</span><span class="n">action</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_reward</span><span class="p">()</span>
+            <span class="n">reward_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+            <span class="n">experience</span> <span class="o">=</span> <span class="p">(</span><span class="n">state_tensor</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state_tensor</span><span class="p">)</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">store_experience</span><span class="p">(</span><span class="n">experience</span><span class="p">)</span>
+
+        <span class="n">reward_model_loss_list</span><span class="p">,</span> <span class="n">next_state_loss_list</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">fit_model</span><span class="p">(</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="n">time_steps</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span>
+        <span class="p">)</span>
+        <span class="n">next_state_model_list_all</span> <span class="o">+=</span> <span class="n">next_state_loss_list</span>
+        <span class="n">reward_model_list_all</span> <span class="o">+=</span> <span class="n">reward_model_loss_list</span>
+        <span class="n">transition_probas</span> <span class="o">=</span> <span class="n">update_transition_probas</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_train_AC</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Train Agent&quot;</span><span class="p">):</span>
+
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">time_steps</span><span class="p">)</span>
+            <span class="n">critic_loss</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">update_critic_network</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">actor_loss</span><span class="p">,</span> <span class="n">gradient_dict</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">update_actor_network</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">actor_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actor_loss</span><span class="p">)</span>
+            <span class="n">critic_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">critic_loss</span><span class="p">)</span>
+
+        <span class="n">agent</span><span class="o">.</span><span class="n">plan</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">soft_update</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;critic&quot;</span><span class="p">)</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">soft_update</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;actor&quot;</span><span class="p">)</span>
+        <span class="n">gradient_dict_all</span><span class="p">[</span><span class="n">update</span><span class="p">]</span> <span class="o">=</span> <span class="n">gradient_dict</span>
+        <span class="n">agent</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">reward_by_episode</span><span class="p">[</span><span class="n">episode</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward_list</span>
+        <span class="n">latest_transition_proba</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span>
+
+    <span class="c1"># save_agent(agent)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">next_state_model_list_all</span><span class="p">,</span>
+        <span class="n">critic_loss_list</span><span class="p">,</span>
+        <span class="n">actor_loss_list</span><span class="p">,</span>
+        <span class="n">reward_by_episode</span><span class="p">,</span>
+        <span class="n">action_dict</span><span class="p">,</span>
+        <span class="n">gradient_dict</span><span class="p">,</span>
+        <span class="n">transition_probas</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_ddpg_agent">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.create_ddpg_agent">[docs]</a>
+<span class="k">def</span> <span class="nf">create_ddpg_agent</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a DDPG (Deep Deterministic Policy Gradient) agent.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - environment: The environment in which the agent will be trained.</span>
+<span class="sd">    - params (dict): Hyperparameters for the DDPG agent.</span>
+<span class="sd">    - hidden (dict): Hidden layer configurations.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - DDPGAgent: An instance of the DDPG agent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_states</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">num_edges</span> <span class="o">-</span> <span class="n">environment</span><span class="o">.</span><span class="n">num_nullnodes</span>
+    <span class="n">n_actions</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">num_edges</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">DDPGAgent</span><span class="p">(</span><span class="n">n_states</span><span class="p">,</span> <span class="n">n_actions</span><span class="p">,</span> <span class="n">hidden</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">device</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">agent</span></div>
+
+
+
+<div class="viewcode-block" id="get_transition_proba_df">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.get_transition_proba_df">[docs]</a>
+<span class="k">def</span> <span class="nf">get_transition_proba_df</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a nested dictionary of transition probabilities into a pandas DataFrame.</span>
+
+<span class="sd">    The function assumes a structure for `transition_probas` where each key is a start node and</span>
+<span class="sd">    its value is another dictionary mapping end nodes to their respective transition probabilities.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - transition_probas (dict): A dictionary where each key is a start node and its value is another</span>
+<span class="sd">      dictionary mapping end nodes to their respective list of transition probabilities.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - pd.DataFrame: A DataFrame where each column corresponds to an end node and rows are the</span>
+<span class="sd">      probabilities of transitioning to these end nodes from the start nodes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flatten_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">transition_probas</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">end_nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">end_node</span> <span class="ow">in</span> <span class="n">end_nodes</span><span class="p">:</span>
+            <span class="n">flatten_dict</span><span class="p">[</span><span class="n">end_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">transition_probas</span><span class="p">[</span><span class="n">start_node</span><span class="p">][</span><span class="n">end_node</span><span class="p">]</span>
+
+    <span class="n">df_transition_proba</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">flatten_dict</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_transition_proba</span></div>
+
+
+
+<div class="viewcode-block" id="save_all">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.save_all">[docs]</a>
+<span class="k">def</span> <span class="nf">save_all</span><span class="p">(</span>
+    <span class="n">next_state_model_list_all</span><span class="p">,</span>
+    <span class="n">critic_loss_list</span><span class="p">,</span>
+    <span class="n">actor_loss_list</span><span class="p">,</span>
+    <span class="n">reward_by_episode</span><span class="p">,</span>
+    <span class="n">action_dict</span><span class="p">,</span>
+    <span class="n">gradient_dict</span><span class="p">,</span>
+    <span class="n">transition_probas</span><span class="p">,</span>
+    <span class="n">base_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save all relevant data from the training process.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - rewards_list_all (list): All rewards obtained.</span>
+<span class="sd">    - next_state_list_all (list): All next states encountered.</span>
+<span class="sd">    - critic_loss_list_all (list): All critic loss values.</span>
+<span class="sd">    - actor_loss_list_all (list): All actor loss values.</span>
+<span class="sd">    - reward_list (list): List of rewards.</span>
+<span class="sd">    - action_dict (dict): Dictionary of actions taken.</span>
+<span class="sd">    - gradient_dict (dict): Dictionary of gradients.</span>
+<span class="sd">    - transition_probas (list): List of transition probabilities.</span>
+
+<span class="sd">    This function also saves data to various files for further analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">json</span>
+
+    <span class="c1"># Create the directory if it doesn&#39;t exist</span>
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">base_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">base_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_path</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;foundations&quot;</span><span class="p">,</span> <span class="s2">&quot;output_csv&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">actor_loss_list</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;actor_loss.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">critic_loss_list</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;critic_loss.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">next_state_model_list_all</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;next_state_model_loss.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">action_dict</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;action_dict.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="n">df_transition</span> <span class="o">=</span> <span class="n">get_transition_proba_df</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">)</span>
+    <span class="n">df_transition</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;transition_proba.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;gradient_dict.json&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">gradient_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;reward_dict.json&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">reward_by_episode</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSVs have been saved at </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="start_train">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.start_train">[docs]</a>
+<span class="k">def</span> <span class="nf">start_train</span><span class="p">(</span>
+    <span class="n">config_file</span><span class="p">,</span> <span class="n">param_file</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">,</span> <span class="n">plot_curves</span><span class="p">,</span> <span class="n">save_file</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Starts the training process for a reinforcement learning environment and agent.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - config_file (str, optional): The file path to the environment configuration file. Defaults to &quot;configuration_file.yaml&quot;.</span>
+<span class="sd">    - param_file (str, optional): The file path to the hyperparameters file. Defaults to &quot;hyperparameter_file.yaml&quot;.</span>
+<span class="sd">    - save_file (bool, optional): Flag indicating whether to save the training results to files. Defaults to True.</span>
+
+<span class="sd">    This function orchestrates the loading of configurations, creation of environments and agents, and the training process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="n">load_hyperparams</span><span class="p">(</span><span class="n">param_file</span><span class="p">)</span>
+    <span class="n">sim_environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config_file</span><span class="p">)</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="n">create_ddpg_agent</span><span class="p">(</span><span class="n">sim_environment</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+    <span class="n">account_for_blockage</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;account_for_blockage&quot;</span><span class="p">]</span>
+
+    <span class="p">(</span>
+        <span class="n">next_state_model_list_all</span><span class="p">,</span>
+        <span class="n">critic_loss_list</span><span class="p">,</span>
+        <span class="n">actor_loss_list</span><span class="p">,</span>
+        <span class="n">reward_by_episode</span><span class="p">,</span>
+        <span class="n">action_dict</span><span class="p">,</span>
+        <span class="n">gradient_dict</span><span class="p">,</span>
+        <span class="n">transition_probas</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">sim_environment</span><span class="p">)</span>
+
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+    <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_path</span><span class="p">))</span>
+    <span class="n">foundations_dir</span> <span class="o">=</span> <span class="s2">&quot;foundations&quot;</span>
+    <span class="n">csv_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">foundations_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">)</span>
+    <span class="n">image_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">foundations_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">save_file</span><span class="p">:</span>
+        <span class="n">save_all</span><span class="p">(</span>
+            <span class="n">next_state_model_list_all</span><span class="p">,</span>
+            <span class="n">critic_loss_list</span><span class="p">,</span>
+            <span class="n">actor_loss_list</span><span class="p">,</span>
+            <span class="n">reward_by_episode</span><span class="p">,</span>
+            <span class="n">action_dict</span><span class="p">,</span>
+            <span class="n">gradient_dict</span><span class="p">,</span>
+            <span class="n">transition_probas</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">plot_curves</span><span class="p">:</span>
+        <span class="n">plot</span><span class="p">(</span><span class="n">csv_filepath</span><span class="p">,</span> <span class="n">image_filepath</span><span class="p">,</span> <span class="n">transition_probas</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">account_for_blockage</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">foundations.breakdown_exploration.breakdown_exploration</span> <span class="kn">import</span> <span class="p">(</span>
+            <span class="n">BreakdownEngine</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">Engine</span> <span class="o">=</span> <span class="n">BreakdownEngine</span><span class="p">(</span><span class="n">sim_environment</span><span class="p">)</span>
+        <span class="n">Engine</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_best">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.plot_best">[docs]</a>
+<span class="k">def</span> <span class="nf">plot_best</span><span class="p">(</span><span class="n">data_filepath</span><span class="p">,</span> <span class="n">images_filepath</span><span class="p">):</span>
+    <span class="n">plot</span><span class="p">(</span><span class="n">data_filepath</span><span class="p">,</span> <span class="n">images_filepath</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="start_tuning">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.start_tuning">[docs]</a>
+<span class="k">def</span> <span class="nf">start_tuning</span><span class="p">(</span>
+    <span class="n">project_name</span><span class="p">,</span>
+    <span class="n">num_runs</span><span class="p">,</span>
+    <span class="n">tune_param_filepath</span><span class="p">,</span>
+    <span class="n">config_param_filepath</span><span class="p">,</span>
+    <span class="n">eval_param_filepath</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="p">,</span>
+    <span class="n">plot_best_param</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">image_filename</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
+    <span class="n">tuner</span><span class="o">=</span><span class="s2">&quot;wandb&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initiates the hyperparameter tuning process for a reinforcement learning project, optionally plots the best parameters,</span>
+<span class="sd">    and starts a training session with those parameters.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">    - project_name (str): The name of the project in Wandb where the tuning results will be tracked.</span>
+<span class="sd">    - num_runs (int): The number of tuning runs to perform.</span>
+<span class="sd">    - tune_param_filepath (str): The file path to the YAML file containing the parameters to be tuned.</span>
+<span class="sd">    - config_param_filepath (str): The file path to the YAML file containing the configuration parameters for the queueing environment.</span>
+<span class="sd">    - eval_param_filepath (str): The file path to the YAML file containing the evaluation parameters for the model.</span>
+<span class="sd">    - plot_best_param (bool, optional): A flag to indicate whether to plot the best parameters after tuning. Defaults to True.</span>
+<span class="sd">    - data_filename (str, optional): The base name for data files where training results will be saved. Defaults to &#39;data&#39;.</span>
+<span class="sd">    - image_filename (str, optional): The base name for image files where plots will be saved. Defaults to &#39;images&#39;.</span>
+
+<span class="sd">    This function utilizes Wandb for hyperparameter tuning, tracking, and selecting the best parameters based on a specified metric.</span>
+<span class="sd">    It then loads the best parameters, if found, and proceeds to create a simulation environment and an agent. Training is then</span>
+<span class="sd">    conducted using these parameters, and results are optionally saved and plotted.</span>
+
+<span class="sd">    Note: The function assumes access to Wandb and requires an API key for Wandb to be set up in advance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tuner</span> <span class="o">==</span> <span class="s2">&quot;wandb&quot;</span><span class="p">:</span>
+        <span class="n">init_wandb</span><span class="p">(</span>
+            <span class="n">project_name</span><span class="p">,</span>
+            <span class="n">tune_param_filepath</span><span class="p">,</span>
+            <span class="n">config_param_filepath</span><span class="p">,</span>
+            <span class="n">eval_param_filepath</span><span class="p">,</span>
+            <span class="n">num_runs</span><span class="o">=</span><span class="n">num_runs</span><span class="p">,</span>
+            <span class="n">opt_target</span><span class="o">=</span><span class="s2">&quot;reward&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">plot_best_param</span><span class="p">:</span>
+            <span class="n">api</span> <span class="o">=</span> <span class="n">wandb</span><span class="o">.</span><span class="n">Api</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>  <span class="c1"># replace your api key</span>
+            <span class="n">runs</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">&quot;datasparq&quot;</span><span class="p">)</span>
+            <span class="n">best_run</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">best_metric</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Assuming higher is better; initialize appropriately based on your metric</span>
+
+            <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
+                <span class="c1"># Make sure the metric is reported for the run</span>
+                <span class="k">if</span> <span class="s2">&quot;reward&quot;</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">summary</span><span class="p">:</span>
+                    <span class="n">metric_value</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;reward&quot;</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">best_run</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">metric_value</span> <span class="o">&gt;</span> <span class="n">best_metric</span><span class="p">:</span>
+                        <span class="n">best_metric</span> <span class="o">=</span> <span class="n">metric_value</span>
+                        <span class="n">best_run</span> <span class="o">=</span> <span class="n">run</span>
+
+            <span class="k">if</span> <span class="n">best_run</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best run ID: </span><span class="si">{</span><span class="n">best_run</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best </span><span class="si">{</span><span class="n">best_metric</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">best_metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best parameters:&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">best_run</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No runs found or metric not reported.&quot;</span><span class="p">)</span>
+
+            <span class="n">best_params</span> <span class="o">=</span> <span class="n">best_run</span><span class="o">.</span><span class="n">config</span>
+            <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="n">load_hyperparams</span><span class="p">(</span><span class="n">eval_param_filepath</span><span class="p">)</span>
+            <span class="n">sim_environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config_param_filepath</span><span class="p">)</span>
+            <span class="n">agent</span> <span class="o">=</span> <span class="n">create_ddpg_agent</span><span class="p">(</span><span class="n">sim_environment</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+            <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+            <span class="n">csv_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">)</span>
+            <span class="n">image_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+
+            <span class="n">plot_best</span><span class="p">(</span><span class="n">csv_filepath</span><span class="p">,</span> <span class="n">image_filepath</span><span class="p">)</span>
+
+            <span class="p">(</span>
+                <span class="n">rewards_list_all</span><span class="p">,</span>
+                <span class="n">next_state_list_all</span><span class="p">,</span>
+                <span class="n">critic_loss_list_all</span><span class="p">,</span>
+                <span class="n">actor_loss_list_all</span><span class="p">,</span>
+                <span class="n">reward_list</span><span class="p">,</span>
+                <span class="n">action_dict</span><span class="p">,</span>
+                <span class="n">gradient_dict</span><span class="p">,</span>
+                <span class="n">transition_probas</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">sim_environment</span><span class="p">,</span> <span class="n">best_params</span><span class="o">=</span><span class="n">best_params</span><span class="p">)</span>
+
+            <span class="n">save_all</span><span class="p">(</span>
+                <span class="n">rewards_list_all</span><span class="p">,</span>
+                <span class="n">next_state_list_all</span><span class="p">,</span>
+                <span class="n">critic_loss_list_all</span><span class="p">,</span>
+                <span class="n">actor_loss_list_all</span><span class="p">,</span>
+                <span class="n">reward_list</span><span class="p">,</span>
+                <span class="n">action_dict</span><span class="p">,</span>
+                <span class="n">gradient_dict</span><span class="p">,</span>
+                <span class="n">transition_probas</span><span class="p">,</span>
+                <span class="n">base_path</span><span class="o">=</span><span class="n">csv_filepath</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">image_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+
+            <span class="n">plot_best</span><span class="p">(</span><span class="n">image_filepath</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ray_tune</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="start_evaluation">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.start_evaluation">[docs]</a>
+<span class="k">def</span> <span class="nf">start_evaluation</span><span class="p">(</span><span class="n">environment</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This function is used to allow a trained agent to actively make decisions in the environment and returns the total reward obtained after a specified number of time steps.&quot;&quot;&quot;</span>
+    <span class="c1"># environment.simulate()</span>
+    <span class="n">total_reward</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Evaluation&quot;</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">actor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">get_next_state</span><span class="p">(</span><span class="n">action</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">reward</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">get_reward</span><span class="p">()</span>
+        <span class="n">total_reward</span> <span class="o">+=</span> <span class="n">reward</span>
+    <span class="k">return</span> <span class="n">total_reward</span></div>
+
+
+
+<div class="viewcode-block" id="Engine">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine">[docs]</a>
+<span class="k">class</span> <span class="nc">Engine</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class encapsulates the core functions necessary for training and evaluating the reinforcement learning agent</span>
+<span class="sd">    and is used as the parent class for the advanced classes in the evaluation module.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Engine.load_config">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.load_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env_param_filepath</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load environment configuration parameters from a YAML file.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - config_filepath (str): The file path to the configuration YAML file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - dict: A dictionary containing the configuration parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get the directory of the current script</span>
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="c1"># Go up one directory to the MScDataSparqProject directory</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_dir</span><span class="p">)</span>
+        <span class="c1"># Build the path to the configuration file</span>
+        <span class="n">abs_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">env_param_filepath</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">param_file</span><span class="p">:</span>
+            <span class="n">config_params</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">param_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+        <span class="c1"># Convert lists to tuples</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="nb">tuple</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;entry_nodes&quot;</span><span class="p">]</span>
+            <span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;inf&quot;</span><span class="p">:</span>
+                    <span class="n">config_params</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">][</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="n">config_params</span></div>
+
+
+<div class="viewcode-block" id="Engine.load_hyperparams">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.load_hyperparams">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_hyperparams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eval_param_filepath</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load agent hyperparameters from a YAML file.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - param_filepath (str): The file path to the hyperparameters YAML file.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - tuple: A tuple containing two dictionaries, `params` for hyperparameters and `hidden` for hidden layer configurations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_dir</span><span class="p">)</span>
+        <span class="n">abs_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">eval_param_filepath</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">abs_file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">env_param_file</span><span class="p">:</span>
+            <span class="n">parameter_dictionary</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">env_param_file</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;rl_params&quot;</span><span class="p">]</span>
+        <span class="n">hidden</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;network_params&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span></div>
+
+
+<div class="viewcode-block" id="Engine.get_param_for_state_exploration">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.get_param_for_state_exploration">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_param_for_state_exploration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract parameters necessary for state exploration.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - params (dict): Hyperparameters including those needed for state exploration.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - tuple: A tuple containing parameters specific to state exploration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_sample</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_sample&quot;</span><span class="p">]</span>
+        <span class="n">device_here</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="n">w1</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;w1&quot;</span><span class="p">]</span>
+        <span class="n">w2</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;w2&quot;</span><span class="p">]</span>
+        <span class="n">epsilon</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;epsilon_state_exploration&quot;</span><span class="p">]</span>
+        <span class="n">reset</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;reset&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">reset</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">reset_frequency</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reset_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;reset_frequency&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">num_sample</span><span class="p">,</span> <span class="n">device_here</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span> <span class="n">reset</span><span class="p">,</span> <span class="n">reset_frequency</span></div>
+
+
+<div class="viewcode-block" id="Engine.get_params_for_train">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.get_params_for_train">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_params_for_train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract parameters necessary for training.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - params (dict): Hyperparameters including those needed for training.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - tuple: A tuple containing parameters specific to training.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_episodes</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_episodes&quot;</span><span class="p">]</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">]</span>
+        <span class="n">num_epochs</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">]</span>
+        <span class="n">time_steps</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;time_steps&quot;</span><span class="p">]</span>
+        <span class="n">target_update_frequency</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;target_update_frequency&quot;</span><span class="p">]</span>
+        <span class="n">num_train_AC</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_train_AC&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">num_episodes</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">num_epochs</span><span class="p">,</span>
+            <span class="n">time_steps</span><span class="p">,</span>
+            <span class="n">target_update_frequency</span><span class="p">,</span>
+            <span class="n">num_train_AC</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Engine.init_transition_proba">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.init_transition_proba">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_transition_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+        <span class="n">transition_proba</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">adjacent_lists</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">qn_net</span><span class="o">.</span><span class="n">adja_list</span>
+
+        <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">adjacent_lists</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjacent_lists</span><span class="p">[</span><span class="n">start_node</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="n">transition_proba</span></div>
+
+
+<div class="viewcode-block" id="Engine.update_transition_probas">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.update_transition_probas">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_transition_probas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transition_probas</span><span class="p">,</span> <span class="n">env</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">start_node</span> <span class="ow">in</span> <span class="n">transition_probas</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">next_nodes</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">next_proba_dict</span> <span class="o">=</span> <span class="n">transition_probas</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">next_node</span> <span class="ow">in</span> <span class="n">next_nodes</span><span class="p">:</span>
+                <span class="n">proba_list</span> <span class="o">=</span> <span class="n">next_proba_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">next_node</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">proba_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">proba_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">env</span><span class="o">.</span><span class="n">qn_net</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">][</span><span class="n">next_node</span><span class="p">]</span>
+                    <span class="p">)</span>
+                <span class="n">proba_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">[</span><span class="n">start_node</span><span class="p">][</span><span class="n">next_node</span><span class="p">])</span>
+                <span class="n">next_proba_dict</span><span class="p">[</span><span class="n">next_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">proba_list</span>
+
+            <span class="n">transition_probas</span><span class="p">[</span><span class="n">start_node</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_proba_dict</span>
+        <span class="k">return</span> <span class="n">transition_probas</span></div>
+
+
+<div class="viewcode-block" id="Engine.convert_format">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.convert_format">[docs]</a>
+    <span class="k">def</span> <span class="nf">convert_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">initial_states</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+            <span class="n">initial_states</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">num</span>
+        <span class="k">return</span> <span class="n">initial_states</span></div>
+
+
+<div class="viewcode-block" id="Engine.save_agent">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.save_agent">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_agent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the trained RL agent to a file.</span>
+
+<span class="sd">        This function creates a directory named &#39;Agent&#39; in the current working directory if it doesn&#39;t exist,</span>
+<span class="sd">        and saves the given agent model to a file named &#39;tensor.pt&#39; within this directory.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+        <span class="n">agent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;agents&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create the directory if it does not exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">agent_dir</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">agent_dir</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Directory created at </span><span class="si">{</span><span class="n">agent_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">agent_dir</span><span class="p">,</span> <span class="s2">&quot;trained_agent.pt&quot;</span><span class="p">)</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">agent</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Agent saved successfully at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Engine.train">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">best_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">blockage_qn_net</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conduct training sessions for a given agent and environment.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - params (dict): Hyperparameters for training.</span>
+<span class="sd">        - agent: The agent to be trained.</span>
+<span class="sd">        - env: The environment in which the agent operates.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - Multiple values including lists that track various metrics through training.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">best_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">best_params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">best_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">best_params</span>
+
+        <span class="n">next_state_model_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reward_model_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">gradient_dict_all</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">action_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">gradient_dict_all</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">transition_probas</span> <span class="o">=</span> <span class="n">init_transition_proba</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">actor_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">critic_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reward_by_episode</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">num_episodes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">num_train_AC</span> <span class="o">=</span> <span class="n">get_params_for_train</span><span class="p">(</span>
+            <span class="n">params</span>
+        <span class="p">)</span>
+        <span class="n">latest_transition_proba</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Episode Progress&quot;</span><span class="p">):</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">blockage_qn_net</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">blockage_qn_net</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">latest_transition_proba</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">set_transitions</span><span class="p">(</span><span class="n">latest_transition_proba</span><span class="p">)</span>
+
+            <span class="n">env</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Time Steps Progress&quot;</span><span class="p">):</span>
+
+                <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+
+                <span class="n">state_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">select_action</span><span class="p">(</span><span class="n">state_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">action_list</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">action_list</span><span class="p">):</span>
+                    <span class="n">node_list</span> <span class="o">=</span> <span class="n">action_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">[])</span>
+                    <span class="n">node_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">action_dict</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_list</span>
+
+                <span class="n">next_state_tensor</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get_next_state</span><span class="p">(</span><span class="n">action</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_reward</span><span class="p">()</span>
+                <span class="n">reward_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+                <span class="n">experience</span> <span class="o">=</span> <span class="p">(</span><span class="n">state_tensor</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state_tensor</span><span class="p">)</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">store_experience</span><span class="p">(</span><span class="n">experience</span><span class="p">)</span>
+
+            <span class="n">reward_model_loss_list</span><span class="p">,</span> <span class="n">next_state_loss_list</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">fit_model</span><span class="p">(</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">time_steps</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span>
+            <span class="p">)</span>
+            <span class="n">next_state_model_list_all</span> <span class="o">+=</span> <span class="n">next_state_loss_list</span>
+            <span class="n">reward_model_list_all</span> <span class="o">+=</span> <span class="n">reward_model_loss_list</span>
+            <span class="n">transition_probas</span> <span class="o">=</span> <span class="n">update_transition_probas</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_train_AC</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Train Agent&quot;</span><span class="p">):</span>
+
+                <span class="n">batch</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">time_steps</span><span class="p">)</span>
+                <span class="n">critic_loss</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">update_critic_network</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                <span class="n">actor_loss</span><span class="p">,</span> <span class="n">gradient_dict</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">update_actor_network</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                <span class="n">actor_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actor_loss</span><span class="p">)</span>
+                <span class="n">critic_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">critic_loss</span><span class="p">)</span>
+
+            <span class="n">agent</span><span class="o">.</span><span class="n">plan</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">soft_update</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;critic&quot;</span><span class="p">)</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">soft_update</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;actor&quot;</span><span class="p">)</span>
+            <span class="n">gradient_dict_all</span><span class="p">[</span><span class="n">update</span><span class="p">]</span> <span class="o">=</span> <span class="n">gradient_dict</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">reward_by_episode</span><span class="p">[</span><span class="n">episode</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward_list</span>
+            <span class="n">latest_transition_proba</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span>
+
+        <span class="n">save_agent</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">next_state_model_list_all</span><span class="p">,</span>
+            <span class="n">critic_loss_list</span><span class="p">,</span>
+            <span class="n">actor_loss_list</span><span class="p">,</span>
+            <span class="n">reward_by_episode</span><span class="p">,</span>
+            <span class="n">action_dict</span><span class="p">,</span>
+            <span class="n">gradient_dict</span><span class="p">,</span>
+            <span class="n">transition_probas</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Engine.save_all">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.save_all">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_all</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">next_state_model_list_all</span><span class="p">,</span>
+        <span class="n">critic_loss_list</span><span class="p">,</span>
+        <span class="n">actor_loss_list</span><span class="p">,</span>
+        <span class="n">reward_by_episode</span><span class="p">,</span>
+        <span class="n">action_dict</span><span class="p">,</span>
+        <span class="n">gradient_dict</span><span class="p">,</span>
+        <span class="n">transition_probas</span><span class="p">,</span>
+        <span class="n">base_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save all relevant data from the training process.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - rewards_list_all (list): All rewards obtained.</span>
+<span class="sd">        - next_state_list_all (list): All next states encountered.</span>
+<span class="sd">        - critic_loss_list_all (list): All critic loss values.</span>
+<span class="sd">        - actor_loss_list_all (list): All actor loss values.</span>
+<span class="sd">        - reward_list (list): List of rewards.</span>
+<span class="sd">        - action_dict (dict): Dictionary of actions taken.</span>
+<span class="sd">        - gradient_dict (dict): Dictionary of gradients.</span>
+<span class="sd">        - transition_probas (list): List of transition probabilities.</span>
+
+<span class="sd">        This function also saves data to various files for further analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">json</span>
+
+        <span class="c1"># Create the directory if it doesn&#39;t exist</span>
+        <span class="k">if</span> <span class="n">base_path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">base_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_path</span><span class="p">,</span> <span class="s2">&quot;foundations&quot;</span><span class="p">,</span> <span class="s2">&quot;output_csv&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">actor_loss_list</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;actor_loss.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">critic_loss_list</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;critic_loss.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">next_state_model_list_all</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;next_state_model_loss.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">action_dict</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;action_dict.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="n">df_transition</span> <span class="o">=</span> <span class="n">get_transition_proba_df</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">)</span>
+        <span class="n">df_transition</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;transition_proba.csv&quot;</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;gradient_dict.json&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">gradient_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;reward_dict.json&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">reward_by_episode</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CSVs have been saved at </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Engine.start_train">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.start_train">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_train</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_file</span><span class="p">,</span>
+        <span class="n">param_file</span><span class="p">,</span>
+        <span class="n">save_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="n">image_filename</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
+        <span class="n">plot_curves</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Starts the training process for a reinforcement learning environment and agent  - might change this so that it accepts the objects instead</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - config_file (str, optional): The file path to the environment configuration file. Defaults to &quot;configuration_file.yaml&quot;.</span>
+<span class="sd">        - param_file (str, optional): The file path to the hyperparameters file. Defaults to &quot;hyperparameter_file.yaml&quot;.</span>
+<span class="sd">        - save_file (bool, optional): Flag indicating whether to save the training results to files. Defaults to True.</span>
+
+<span class="sd">        This function orchestrates the loading of configurations, creation of environments and agents, and the training process.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_hyperparams</span><span class="p">(</span><span class="n">param_file</span><span class="p">)</span>
+        <span class="n">sim_environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config_file</span><span class="p">)</span>
+        <span class="n">agent</span> <span class="o">=</span> <span class="n">create_ddpg_agent</span><span class="p">(</span><span class="n">sim_environment</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+        <span class="n">account_for_blockage</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;account_for_blockage&quot;</span><span class="p">]</span>
+
+        <span class="p">(</span>
+            <span class="n">next_state_model_list_all</span><span class="p">,</span>
+            <span class="n">critic_loss_list</span><span class="p">,</span>
+            <span class="n">actor_loss_list</span><span class="p">,</span>
+            <span class="n">reward_by_episode</span><span class="p">,</span>
+            <span class="n">action_dict</span><span class="p">,</span>
+            <span class="n">gradient_dict</span><span class="p">,</span>
+            <span class="n">transition_probas</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">sim_environment</span><span class="p">)</span>
+
+        <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_path</span><span class="p">))</span>
+        <span class="n">foundations_dir</span> <span class="o">=</span> <span class="s2">&quot;foundations&quot;</span>
+        <span class="n">csv_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">foundations_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">)</span>
+        <span class="n">image_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">foundations_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">save_file</span><span class="p">:</span>
+            <span class="n">save_all</span><span class="p">(</span>
+                <span class="n">next_state_model_list_all</span><span class="p">,</span>
+                <span class="n">critic_loss_list</span><span class="p">,</span>
+                <span class="n">actor_loss_list</span><span class="p">,</span>
+                <span class="n">reward_by_episode</span><span class="p">,</span>
+                <span class="n">action_dict</span><span class="p">,</span>
+                <span class="n">gradient_dict</span><span class="p">,</span>
+                <span class="n">transition_probas</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">plot_curves</span><span class="p">:</span>
+            <span class="n">plot</span><span class="p">(</span><span class="n">csv_filepath</span><span class="p">,</span> <span class="n">image_filepath</span><span class="p">,</span> <span class="n">transition_probas</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Engine.plot_best">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.plot_best">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_best</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_filepath</span><span class="p">,</span> <span class="n">images_filepath</span><span class="p">):</span>
+        <span class="n">plot</span><span class="p">(</span><span class="n">data_filepath</span><span class="p">,</span> <span class="n">images_filepath</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Engine.start_tuning">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.start_tuning">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_tuning</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">project_name</span><span class="p">,</span>
+        <span class="n">num_runs</span><span class="p">,</span>
+        <span class="n">tune_param_filepath</span><span class="p">,</span>
+        <span class="n">config_param_filepath</span><span class="p">,</span>
+        <span class="n">eval_param_filepath</span><span class="p">,</span>
+        <span class="n">api_key</span><span class="p">,</span>
+        <span class="n">plot_best_param</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span>
+        <span class="n">image_filename</span><span class="o">=</span><span class="s2">&quot;images&quot;</span><span class="p">,</span>
+        <span class="n">tuner</span><span class="o">=</span><span class="s2">&quot;wandb&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initiates the hyperparameter tuning process for a reinforcement learning project, optionally plots the best parameters,</span>
+<span class="sd">        and starts a training session with those parameters.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - project_name (str): The name of the project in Wandb where the tuning results will be tracked.</span>
+<span class="sd">        - num_runs (int): The number of tuning runs to perform.</span>
+<span class="sd">        - tune_param_filepath (str): The file path to the YAML file containing the parameters to be tuned.</span>
+<span class="sd">        - config_param_filepath (str): The file path to the YAML file containing the configuration parameters for the queueing environment.</span>
+<span class="sd">        - eval_param_filepath (str): The file path to the YAML file containing the evaluation parameters for the model.</span>
+<span class="sd">        - plot_best_param (bool, optional): A flag to indicate whether to plot the best parameters after tuning. Defaults to True.</span>
+<span class="sd">        - data_filename (str, optional): The base name for data files where training results will be saved. Defaults to &#39;data&#39;.</span>
+<span class="sd">        - image_filename (str, optional): The base name for image files where plots will be saved. Defaults to &#39;images&#39;.</span>
+
+<span class="sd">        This function utilizes Wandb for hyperparameter tuning, tracking, and selecting the best parameters based on a specified metric.</span>
+<span class="sd">        It then loads the best parameters, if found, and proceeds to create a simulation environment and an agent. Training is then</span>
+<span class="sd">        conducted using these parameters, and results are optionally saved and plotted.</span>
+
+<span class="sd">        Note: The function assumes access to Wandb and requires an API key for Wandb to be set up in advance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tuner</span> <span class="o">==</span> <span class="s2">&quot;wandb&quot;</span><span class="p">:</span>
+            <span class="n">init_wandb</span><span class="p">(</span>
+                <span class="n">project_name</span><span class="p">,</span>
+                <span class="n">tune_param_filepath</span><span class="p">,</span>
+                <span class="n">config_param_filepath</span><span class="p">,</span>
+                <span class="n">eval_param_filepath</span><span class="p">,</span>
+                <span class="n">num_runs</span><span class="o">=</span><span class="n">num_runs</span><span class="p">,</span>
+                <span class="n">opt_target</span><span class="o">=</span><span class="s2">&quot;reward&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">plot_best_param</span><span class="p">:</span>
+                <span class="n">api</span> <span class="o">=</span> <span class="n">wandb</span><span class="o">.</span><span class="n">Api</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">)</span>  <span class="c1"># replace your api key</span>
+                <span class="n">runs</span> <span class="o">=</span> <span class="n">api</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">&quot;datasparq&quot;</span><span class="p">)</span>
+                <span class="n">best_run</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">best_metric</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Assuming higher is better; initialize appropriately based on your metric</span>
+
+                <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">runs</span><span class="p">:</span>
+                    <span class="c1"># Make sure the metric is reported for the run</span>
+                    <span class="k">if</span> <span class="s2">&quot;reward&quot;</span> <span class="ow">in</span> <span class="n">run</span><span class="o">.</span><span class="n">summary</span><span class="p">:</span>
+                        <span class="n">metric_value</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;reward&quot;</span><span class="p">]</span>
+
+                        <span class="k">if</span> <span class="n">best_run</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">metric_value</span> <span class="o">&gt;</span> <span class="n">best_metric</span><span class="p">:</span>
+                            <span class="n">best_metric</span> <span class="o">=</span> <span class="n">metric_value</span>
+                            <span class="n">best_run</span> <span class="o">=</span> <span class="n">run</span>
+
+                <span class="k">if</span> <span class="n">best_run</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best run ID: </span><span class="si">{</span><span class="n">best_run</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best </span><span class="si">{</span><span class="n">best_metric</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">best_metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Best parameters:&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">best_run</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No runs found or metric not reported.&quot;</span><span class="p">)</span>
+
+                <span class="n">best_params</span> <span class="o">=</span> <span class="n">best_run</span><span class="o">.</span><span class="n">config</span>
+                <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span> <span class="o">=</span> <span class="n">load_hyperparams</span><span class="p">(</span><span class="n">eval_param_filepath</span><span class="p">)</span>
+                <span class="n">sim_environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">config_param_filepath</span><span class="p">)</span>
+                <span class="n">agent</span> <span class="o">=</span> <span class="n">create_ddpg_agent</span><span class="p">(</span><span class="n">sim_environment</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">hidden</span><span class="p">)</span>
+                <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+                <span class="n">csv_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">data_filename</span><span class="p">)</span>
+                <span class="n">image_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+
+                <span class="n">plot_best</span><span class="p">(</span><span class="n">csv_filepath</span><span class="p">,</span> <span class="n">image_filepath</span><span class="p">)</span>
+
+                <span class="p">(</span>
+                    <span class="n">rewards_list_all</span><span class="p">,</span>
+                    <span class="n">next_state_list_all</span><span class="p">,</span>
+                    <span class="n">critic_loss_list_all</span><span class="p">,</span>
+                    <span class="n">actor_loss_list_all</span><span class="p">,</span>
+                    <span class="n">reward_list</span><span class="p">,</span>
+                    <span class="n">action_dict</span><span class="p">,</span>
+                    <span class="n">gradient_dict</span><span class="p">,</span>
+                    <span class="n">transition_probas</span><span class="p">,</span>
+                <span class="p">)</span> <span class="o">=</span> <span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">sim_environment</span><span class="p">,</span> <span class="n">best_params</span><span class="o">=</span><span class="n">best_params</span><span class="p">)</span>
+
+                <span class="n">save_all</span><span class="p">(</span>
+                    <span class="n">rewards_list_all</span><span class="p">,</span>
+                    <span class="n">next_state_list_all</span><span class="p">,</span>
+                    <span class="n">critic_loss_list_all</span><span class="p">,</span>
+                    <span class="n">actor_loss_list_all</span><span class="p">,</span>
+                    <span class="n">reward_list</span><span class="p">,</span>
+                    <span class="n">action_dict</span><span class="p">,</span>
+                    <span class="n">gradient_dict</span><span class="p">,</span>
+                    <span class="n">transition_probas</span><span class="p">,</span>
+                    <span class="n">base_path</span><span class="o">=</span><span class="n">csv_filepath</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">image_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">current_dir</span><span class="p">,</span> <span class="n">image_filename</span><span class="p">)</span>
+
+                <span class="n">plot_best</span><span class="p">(</span><span class="n">image_filepath</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ray_tune</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Engine.start_evaluation">
+<a class="viewcode-back" href="../../../sim_rl.foundations.html#sim_rl.foundations.core_functions.Engine.start_evaluation">[docs]</a>
+    <span class="k">def</span> <span class="nf">start_evaluation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environment</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">,</span> <span class="n">num_simulations</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is used to allow a trained agent to actively make decisions in the environment and returns the total reward obtained after a specified number of time steps.</span>
+<span class="sd">        env = file path to the environment configuration file - should the object passed instead ?</span>
+<span class="sd">        agent = the trained agent object</span>
+<span class="sd">        time_steps = the number of time steps to run the interaction with the simulation environment</span>
+<span class="sd">        num_simulations = the number of simulations to run for each time step</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Create the environment object using the configuration file</span>
+        <span class="n">environment</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;num_sim&quot;</span><span class="p">:</span> <span class="n">num_simulations</span><span class="p">},</span> <span class="n">config_param_filepath</span>
+        <span class="p">)</span>
+        <span class="n">total_reward</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Evaluation&quot;</span><span class="p">):</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">actor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">get_next_state</span><span class="p">(</span><span class="n">action</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">reward</span> <span class="o">=</span> <span class="n">environment</span><span class="o">.</span><span class="n">get_reward</span><span class="p">()</span>
+            <span class="n">total_reward</span> <span class="o">+=</span> <span class="n">reward</span>
+        <span class="k">return</span> <span class="n">total_reward</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

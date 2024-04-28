@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.evaluation.startup_evaluation.startup_evaluation &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">sim_rl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sim_rl.evaluation.startup_evaluation.startup_evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sim_rl.evaluation.startup_evaluation.startup_evaluation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
+<span class="n">parent_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">parent_dir</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">())</span>
+
+<span class="kn">from</span> <span class="nn">foundations.core_functions</span> <span class="kn">import</span> <span class="n">Engine</span>
+
+
+<div class="viewcode-block" id="StartupBehavior">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior">[docs]</a>
+<span class="k">class</span> <span class="nc">StartupBehavior</span><span class="p">(</span><span class="n">Engine</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_size</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">consecutive_points</span><span class="p">,</span> <span class="n">episode</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class is responsible for tracking the changes in the reward per timestep within an epsiode as the agent is trained</span>
+<span class="sd">        and determining the point at which the agent&#39;s performance stabilizes.</span>
+<span class="sd">        Parameters:</span>
+<span class="sd">        window_size (int): The number of episodes over which the moving average is computed.</span>
+<span class="sd">        threshold (float): The threshold for the derivative of the moving average, below which</span>
+<span class="sd">                           the system is considered to have stabilized.</span>
+<span class="sd">        consecutive_points (int): The required number of consecutive points that must meet the</span>
+<span class="sd">                                  threshold criterion to declare stabilization.</span>
+<span class="sd">        episode (int): Episode number to specifically analyze for stabilization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span> <span class="o">=</span> <span class="n">window_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consecutive_points</span> <span class="o">=</span> <span class="n">consecutive_points</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">episode</span> <span class="o">=</span> <span class="n">episode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">commence_analysis</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">10</span>  <span class="c1"># The variable controls when the analysis should commence</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_path</span><span class="p">()</span>
+
+<div class="viewcode-block" id="StartupBehavior.get_data_path">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.get_data_path">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_data_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Current directory</span>
+        <span class="n">current_dir</span> <span class="o">=</span> <span class="n">root_dir</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+
+        <span class="c1"># Construct the relative path to the target JSON file</span>
+        <span class="n">relative_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">current_dir</span><span class="p">,</span> <span class="s2">&quot;foundations&quot;</span><span class="p">,</span> <span class="s2">&quot;output_csv&quot;</span><span class="p">,</span> <span class="s2">&quot;reward_dict.json&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Normalize the path to avoid any cross-platform issues</span>
+        <span class="n">normalized_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">relative_path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">normalized_path</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.load_json_data">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.load_json_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_json_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datapath</span><span class="p">):</span>
+
+        <span class="c1"># Load the JSON file using a context manager</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">datapath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.moving_average">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.moving_average">[docs]</a>
+    <span class="k">def</span> <span class="nf">moving_average</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate moving average of the data using the defined window size.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;valid&quot;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.calculate_derivative">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.calculate_derivative">[docs]</a>
+    <span class="k">def</span> <span class="nf">calculate_derivative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the first derivative of the data.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.find_stabilization_point">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.find_stabilization_point">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_stabilization_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">derivatives</span><span class="p">):</span>
+        <span class="n">abs_derivatives</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">derivatives</span><span class="p">)</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Counter for consecutive points under threshold</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">abs_derivatives</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">abs_derivatives</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">consecutive_points</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="p">(</span>
+                        <span class="n">i</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">consecutive_points</span> <span class="o">+</span> <span class="mi">2</span>
+                    <span class="p">)</span>  <span class="c1"># Adjust for the window of points</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Reset counter if the point is above the threshold</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>  <span class="c1"># Returns -1 if no stabilization point is found</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.evaluate_convergence">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.evaluate_convergence">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate_convergence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reward_data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate the startup behavior of the agent.&quot;&quot;&quot;</span>
+
+        <span class="n">datapath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_path</span><span class="p">()</span>
+        <span class="n">reward_data_from_json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_json_data</span><span class="p">(</span><span class="n">datapath</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">reward_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reward_data</span> <span class="o">=</span> <span class="n">reward_data_from_json</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">rewards</span> <span class="o">=</span> <span class="n">reward_data</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_rewards</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moving_average</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">)</span>
+        <span class="n">derivatives</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_derivative</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">smoothed_rewards</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stabilization_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_stabilization_point</span><span class="p">(</span><span class="n">derivatives</span><span class="p">)</span>
+        <span class="c1"># self.plot_results()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stabilization_point</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.train">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.train">[docs]</a>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">agent</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">best_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">blockage_qn_net</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Modified training function to include the logic for stopping the training process when the stabilization point is reached.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - params (dict): Hyperparameters for training.</span>
+<span class="sd">        - agent: The agent to be trained.</span>
+<span class="sd">        - env: The environment in which the agent operates.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - Multiple values including lists that track various metrics through training.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_agent</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">best_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">best_params</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">best_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">best_params</span>
+
+        <span class="n">next_state_model_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reward_model_list_all</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">gradient_dict_all</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">action_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">transition_probas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_transition_proba</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">actor_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">critic_loss_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">reward_by_episode</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">num_episodes</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">num_epochs</span><span class="p">,</span> <span class="n">time_steps</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">num_train_AC</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_params_for_train</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">latest_transition_proba</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">episode</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_episodes</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Episode Progress&quot;</span><span class="p">):</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">blockage_qn_net</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">blockage_qn_net</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">latest_transition_proba</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">env</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">set_transitions</span><span class="p">(</span><span class="n">latest_transition_proba</span><span class="p">)</span>
+
+            <span class="n">env</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+            <span class="n">update</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">reward_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">time_steps</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Time Steps Progress&quot;</span><span class="p">):</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+                <span class="n">state_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">select_action</span><span class="p">(</span><span class="n">state_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="n">action_list</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+                <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">action_list</span><span class="p">):</span>
+                    <span class="n">node_list</span> <span class="o">=</span> <span class="n">action_dict</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="p">[])</span>
+                    <span class="n">node_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">action_dict</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">node_list</span>
+
+                <span class="n">next_state_tensor</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get_next_state</span><span class="p">(</span><span class="n">action</span><span class="p">))</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">reward</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_reward</span><span class="p">()</span>
+                <span class="n">reward_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reward</span><span class="p">)</span>
+                <span class="n">experience</span> <span class="o">=</span> <span class="p">(</span><span class="n">state_tensor</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">next_state_tensor</span><span class="p">)</span>
+                <span class="n">agent</span><span class="o">.</span><span class="n">store_experience</span><span class="p">(</span><span class="n">experience</span><span class="p">)</span>
+
+            <span class="n">reward_model_loss_list</span><span class="p">,</span> <span class="n">next_state_loss_list</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">fit_model</span><span class="p">(</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">time_steps</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">num_epochs</span>
+            <span class="p">)</span>
+            <span class="n">next_state_model_list_all</span> <span class="o">+=</span> <span class="n">next_state_loss_list</span>
+            <span class="n">reward_model_list_all</span> <span class="o">+=</span> <span class="n">reward_model_loss_list</span>
+            <span class="n">transition_probas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_transition_probas</span><span class="p">(</span><span class="n">transition_probas</span><span class="p">,</span> <span class="n">env</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_train_AC</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Train Agent&quot;</span><span class="p">):</span>
+                <span class="n">batch</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">time_steps</span><span class="p">)</span>
+                <span class="n">critic_loss</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">update_critic_network</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                <span class="n">actor_loss</span><span class="p">,</span> <span class="n">gradient_dict</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">update_actor_network</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                <span class="n">actor_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">actor_loss</span><span class="p">)</span>
+                <span class="n">critic_loss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">critic_loss</span><span class="p">)</span>
+
+            <span class="n">agent</span><span class="o">.</span><span class="n">plan</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">soft_update</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;critic&quot;</span><span class="p">)</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">soft_update</span><span class="p">(</span><span class="n">network</span><span class="o">=</span><span class="s2">&quot;actor&quot;</span><span class="p">)</span>
+            <span class="n">gradient_dict_all</span><span class="p">[</span><span class="n">update</span><span class="p">]</span> <span class="o">=</span> <span class="n">gradient_dict</span>
+            <span class="n">agent</span><span class="o">.</span><span class="n">buffer</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">reward_by_episode</span><span class="p">[</span><span class="n">episode</span><span class="p">]</span> <span class="o">=</span> <span class="n">reward_list</span>
+            <span class="n">latest_transition_proba</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span>
+
+            <span class="c1"># Additonal logic for handling the stabilization evaluation</span>
+            <span class="k">if</span> <span class="n">episode</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">commence_analysis</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">episode</span> <span class="o">=</span> <span class="n">episode</span>
+                <span class="n">stabilization_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_convergence</span><span class="p">(</span>
+                    <span class="n">reward_by_episode</span>
+                <span class="p">)</span>  <span class="c1"># Evalaute whether the stabilization point has been reached</span>
+                <span class="k">if</span> <span class="n">stabilization_point</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Stabilization point found at episode: </span><span class="si">{</span><span class="n">episode</span><span class="si">}</span><span class="s2"> and timestep: </span><span class="si">{</span><span class="n">stabilization_point</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">break</span>  <span class="c1"># Exit the training loop as stabilization point is found</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_agent</span><span class="p">(</span><span class="n">agent</span><span class="p">)</span>
+        <span class="c1"># Return all the collected data</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">next_state_model_list_all</span><span class="p">,</span>
+            <span class="n">critic_loss_list</span><span class="p">,</span>
+            <span class="n">actor_loss_list</span><span class="p">,</span>
+            <span class="n">reward_by_episode</span><span class="p">,</span>
+            <span class="n">action_dict</span><span class="p">,</span>
+            <span class="n">gradient_dict</span><span class="p">,</span>
+            <span class="n">transition_probas</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.plot_results">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.plot_results">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the original and smoothed rewards with stabilization point.&quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rewards</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Original Rewards&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">smoothed_rewards</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">smoothed_rewards</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Smoothed Rewards&quot;</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stabilization_point</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stabilization_point</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stabilization Point&quot;</span>
+            <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Burn in Period Analysis - Episode &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">episode</span><span class="p">))</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Timestep&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Reward&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;reward_plot.png&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Plot saved as &#39;reward_plot.png&#39;.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StartupBehavior.print_results">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.startup_evaluation.html#sim_rl.evaluation.startup_evaluation.startup_evaluation.StartupBehavior.print_results">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stabilization_point</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No Stabilization point found&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stabilization point found at timestep: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stabilization_point</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+    <span class="c1"># Define the parameters for the startup behavior analysis</span>
+    <span class="n">window_size</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="mf">0.01</span>
+    <span class="n">consecutive_points</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">episode</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># The episode to evaluate for a saved json file</span>
+
+    <span class="c1"># Create the startup behavior analysis engine and evaluate the stabilization point</span>
+    <span class="n">startup_evaluation</span> <span class="o">=</span> <span class="n">StartupBehavior</span><span class="p">(</span>
+        <span class="n">window_size</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">consecutive_points</span><span class="p">,</span> <span class="n">episode</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Implement the original evaluation process on saved data from a json file</span>
+    <span class="n">stabilization_point</span> <span class="o">=</span> <span class="n">startup_evaluation</span><span class="o">.</span><span class="n">evaluate_convergence</span><span class="p">()</span>
+
+    <span class="c1"># Automatically run the training process and stop when the stabilization point is reached</span>
+    <span class="n">agent</span> <span class="o">=</span> <span class="s2">&quot;user_config/eval_hyperparams.yml&quot;</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="s2">&quot;user_config/configuration.yml&quot;</span>
+    <span class="n">startup_evaluation</span><span class="o">.</span><span class="n">start_train</span><span class="p">(</span>
+        <span class="n">env</span><span class="p">,</span>
+        <span class="n">agent</span><span class="p">,</span>
+        <span class="n">save_file</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">data_filename</span><span class="o">=</span><span class="s2">&quot;output_csv&quot;</span><span class="p">,</span>
+        <span class="n">image_filename</span><span class="o">=</span><span class="s2">&quot;output_plots&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Plot the results and evaluate the attributes for addtional analysis</span>
+    <span class="n">startup_evaluation</span><span class="o">.</span><span class="n">plot_results</span><span class="p">()</span>
+    <span class="n">startup_evaluation</span><span class="o">.</span><span class="n">print_results</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

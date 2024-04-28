@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.queue_env.queueing_network &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">sim_rl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sim_rl.queue_env.queueing_network</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sim_rl.queue_env.queueing_network</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="c1"># Append the path where the queueing_tool package is located</span>
+<span class="n">script_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<span class="n">project_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">script_dir</span><span class="p">)</span>
+<span class="n">queue_foundations_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;queue_env&quot;</span><span class="p">,</span> <span class="s2">&quot;queue_foundations&quot;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">queue_foundations_dir</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">queueing_tool.network.queue_network</span> <span class="kn">import</span> <span class="n">QueueNetwork</span>
+<span class="kn">from</span> <span class="nn">queueing_tool.graph.graph_wrapper</span> <span class="kn">import</span> <span class="n">adjacency2graph</span>
+<span class="kn">from</span> <span class="nn">queueing_tool.queues.agents</span> <span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span> <span class="nn">queueing_tool.queues.queue_servers</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="Queue_network">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queueing_network.Queue_network">[docs]</a>
+<span class="k">class</span> <span class="nc">Queue_network</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes a new instance of the Queue_network class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Queue_network.process_config">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queueing_network.Queue_network.process_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function accepts the name of the yaml file as the input and returns the variables for the process_input function.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - filename (str) : Name of the yaml file</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - lambda_list (list) : List of arrival rates for each queue</span>
+<span class="sd">        - miu_list (list) : List of service rates for each queue</span>
+<span class="sd">        - active_cap (int) : Active capacity of the server</span>
+<span class="sd">        - deactive_t (float) : Deactivation time</span>
+<span class="sd">        - adjacent_list (dict) : Adjacency list of the network</span>
+<span class="sd">        - buffer_size_for_each_queue (list) : List of buffer sizes for each queue</span>
+<span class="sd">        - transition_proba (dict) : Transition probability matrix</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+        <span class="n">parameter_dictionary</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">FullLoader</span><span class="p">)</span>
+        <span class="n">lambda_list</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;lambda_list&quot;</span><span class="p">]</span>
+        <span class="n">lambda_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lambda_list</span><span class="p">]</span>
+        <span class="n">miu_list</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;miu_list&quot;</span><span class="p">]</span>
+        <span class="n">miu_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">miu_list</span><span class="p">]</span>
+        <span class="n">active_cap</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;active_cap&quot;</span><span class="p">]</span>
+        <span class="n">active_cap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">active_cap</span><span class="p">)</span>
+        <span class="n">deactive_cap</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;deactive_cap&quot;</span><span class="p">]</span>
+        <span class="n">deactive_cap</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">deactive_cap</span><span class="p">)</span>
+        <span class="n">adjacent_list</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;adjacent_list&quot;</span><span class="p">]</span>
+        <span class="n">adjacent_list</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">adjacent_list</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">buffer_size_for_each_queue</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;buffer_size&quot;</span><span class="p">]</span>
+        <span class="n">buffer_size_for_each_queue</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">buffer_size_for_each_queue</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;transition_proba&quot;</span> <span class="ow">in</span> <span class="n">parameter_dictionary</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">transition_proba</span> <span class="o">=</span> <span class="n">parameter_dictionary</span><span class="p">[</span><span class="s2">&quot;transition_proba&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transition_proba</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">lambda_list</span><span class="p">,</span>
+            <span class="n">miu_list</span><span class="p">,</span>
+            <span class="n">active_cap</span><span class="p">,</span>
+            <span class="n">deactive_cap</span><span class="p">,</span>
+            <span class="n">adjacent_list</span><span class="p">,</span>
+            <span class="n">buffer_size_for_each_queue</span><span class="p">,</span>
+            <span class="n">transition_proba</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Queue_network.process_input">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queueing_network.Queue_network.process_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">arrival_rate</span><span class="p">,</span>
+        <span class="n">miu_list</span><span class="p">,</span>
+        <span class="n">q_classes</span><span class="p">,</span>
+        <span class="n">q_args</span><span class="p">,</span>
+        <span class="n">adjacent_list</span><span class="p">,</span>
+        <span class="n">edge_list</span><span class="p">,</span>
+        <span class="n">transition_proba</span><span class="p">,</span>
+        <span class="n">max_agents</span><span class="p">,</span>
+        <span class="n">sim_jobs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configures the queue network simulation environment with provided inputs.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - arrival_rate (float): The overall rate at which jobs arrive at the queue network.</span>
+<span class="sd">        - miu_list (list): List of service rates for each queue.</span>
+<span class="sd">        - q_classes (dict): Mapping of queue identifiers to their respective queue class types.</span>
+<span class="sd">        - q_args (dict): Additional arguments specific to each queue class.</span>
+<span class="sd">        - adjacent_list (dict): Adjacency list representing the connections between queues.</span>
+<span class="sd">        - edge_list (dict): Detailed edge list providing specific connections and identifiers.</span>
+<span class="sd">        - transition_proba (dict): Probabilities of transitioning from one queue to another.</span>
+<span class="sd">        - max_agents (int): Maximum number of concurrent agents in the network.</span>
+<span class="sd">        - sim_jobs (int): Total number of jobs to simulate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># param for first server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lamda</span> <span class="o">=</span> <span class="n">arrival_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">miu</span> <span class="o">=</span> <span class="n">miu_list</span>
+
+        <span class="c1"># Configure the network</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adja_list</span> <span class="o">=</span> <span class="n">adjacent_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_list</span> <span class="o">=</span> <span class="n">edge_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_classes</span> <span class="o">=</span> <span class="n">q_classes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">q_args</span> <span class="o">=</span> <span class="n">q_args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_agents</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">max_agents</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_jobs</span> <span class="o">=</span> <span class="n">sim_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transition_proba</span> <span class="o">=</span> <span class="n">transition_proba</span></div>
+
+
+<div class="viewcode-block" id="Queue_network.create_env">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queueing_network.Queue_network.create_env">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_env</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates the queue network environment from the configured adjacency and edge lists.</span>
+
+<span class="sd">        This method initializes the graph structure and the queue network with specified classes and arguments.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">adjacency2graph</span><span class="p">(</span>
+            <span class="n">adjacency</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adja_list</span><span class="p">,</span> <span class="n">edge_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_list</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queueing_network</span> <span class="o">=</span> <span class="n">QueueNetwork</span><span class="p">(</span>
+            <span class="n">g</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span>
+            <span class="n">q_classes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q_classes</span><span class="p">,</span>
+            <span class="n">q_args</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">q_args</span><span class="p">,</span>
+            <span class="n">max_agents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_agents</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queueing_network</span><span class="o">.</span><span class="n">set_transitions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Queue_network.run_simulation">
+<a class="viewcode-back" href="../../../sim_rl.queue_env.html#sim_rl.queue_env.queueing_network.Queue_network.run_simulation">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_events</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">collect_data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs the simulation of the queue network for a given number of events.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - num_events (int): The number of events to simulate.</span>
+<span class="sd">        - collect_data (bool): Specifies whether to collect and store data during simulation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - dict: Collected data about agents if data collection is enabled; otherwise, None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queueing_network</span><span class="o">.</span><span class="n">initial</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">collect_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queueing_network</span><span class="o">.</span><span class="n">start_collecting_data</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queueing_network</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">num_events</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agent_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queueing_network</span><span class="o">.</span><span class="n">get_agent_data</span><span class="p">()</span>  <span class="c1"># check the output</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

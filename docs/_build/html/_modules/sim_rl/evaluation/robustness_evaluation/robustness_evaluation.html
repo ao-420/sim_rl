@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sim_rl.evaluation.robustness_evaluation.robustness_evaluation &mdash; sim_rl 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            sim_rl
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">sim_rl</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">sim_rl</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">sim_rl.evaluation.robustness_evaluation.robustness_evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for sim_rl.evaluation.robustness_evaluation.robustness_evaluation</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># Get the absolute path of the parent directory (i.e., the root of your project)</span>
+<span class="n">root_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="c1"># Add the parent directory to sys.path</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">root_dir</span><span class="p">))</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">rl_env.RL_Environment</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">queue_env.queueing_network</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">foundations.core_functions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># Required file paths</span>
+<span class="n">agent_filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root_dir</span><span class="p">,</span> <span class="s2">&quot;agents/trained_agent.pt&quot;</span><span class="p">)</span>
+<span class="n">config_param_filepath</span> <span class="o">=</span> <span class="s2">&quot;user_config/configuration.yml&quot;</span>
+<span class="n">eval_param_filepath</span> <span class="o">=</span> <span class="s2">&quot;user_config/eval_hyperparams.yml&quot;</span>
+<span class="n">data_filename</span> <span class="o">=</span> <span class="s2">&quot;output_csv&quot;</span>
+<span class="n">image_filename</span> <span class="o">=</span> <span class="s2">&quot;output_plots&quot;</span>
+
+
+<span class="c1"># Training Multiple Agents</span>
+<div class="viewcode-block" id="RobustnessEvaluation">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.robustness_evaluation.html#sim_rl.evaluation.robustness_evaluation.robustness_evaluation.RobustnessEvaluation">[docs]</a>
+<span class="k">class</span> <span class="nc">RobustnessEvaluation</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">confidence_level</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span>
+        <span class="n">desired_error</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">num_runs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">time_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">num_sim</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="mf">0.15</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This class is designed to handle the training of multiple agents to estimate</span>
+<span class="sd">        statistical properties of their performance.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            confidence_level (float): The confidence level for the error estimation - defaults to 0.95.</span>
+<span class="sd">            desired_error (int): The desired margin of error for the estimation - defaults to 1.</span>
+<span class="sd">            num_runs (int): The number of different agents to train - defaults to 10.</span>
+<span class="sd">            time_steps (int): The number of time steps to run for each simulation - defaults to 100.</span>
+<span class="sd">            num_sim (int): The number of simulations to average for statistical estimation - defaults to 100.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_runs</span> <span class="o">=</span> <span class="n">num_runs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span> <span class="o">=</span> <span class="n">time_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence_level</span> <span class="o">=</span> <span class="n">confidence_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_value</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="n">confidence_level</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">desired_error</span> <span class="o">=</span> <span class="n">desired_error</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_sim</span> <span class="o">=</span> <span class="n">num_sim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span> <span class="o">=</span> <span class="n">temperature</span>
+
+<div class="viewcode-block" id="RobustnessEvaluation.train_multi_agents">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.robustness_evaluation.html#sim_rl.evaluation.robustness_evaluation.robustness_evaluation.RobustnessEvaluation.train_multi_agents">[docs]</a>
+    <span class="k">def</span> <span class="nf">train_multi_agents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_param_filepath</span><span class="p">,</span> <span class="n">eval_param_filepath</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_runs</span><span class="p">):</span>
+            <span class="n">start_train</span><span class="p">(</span>
+                <span class="n">config_file</span><span class="o">=</span><span class="n">config_param_filepath</span><span class="p">,</span>
+                <span class="n">param_file</span><span class="o">=</span><span class="n">eval_param_filepath</span><span class="p">,</span>
+                <span class="n">data_filename</span><span class="o">=</span><span class="n">data_filename</span><span class="p">,</span>
+                <span class="n">image_filename</span><span class="o">=</span><span class="n">image_filename</span><span class="p">,</span>
+                <span class="n">save_file</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">plot_curves</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">agents</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">agent_filepath</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">agent_filepath</span><span class="p">))</span>
+
+        <span class="n">agents_transition_proba</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">agents</span><span class="p">:</span>
+            <span class="n">env</span> <span class="o">=</span> <span class="n">create_simulation_env</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;num_sim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_sim</span><span class="p">,</span> <span class="s1">&#39;temperature&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperature</span><span class="p">},</span> <span class="n">config_param_filepath</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">time_step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_steps</span><span class="p">):</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">actor</span><span class="p">(</span><span class="n">state</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+                <span class="n">state</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_next_state</span><span class="p">(</span><span class="n">action</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">agents_transition_proba</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">transition_proba</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">agents_transition_proba</span></div>
+
+
+<div class="viewcode-block" id="RobustnessEvaluation.get_std">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.robustness_evaluation.html#sim_rl.evaluation.robustness_evaluation.robustness_evaluation.RobustnessEvaluation.get_std">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_param_filepath</span><span class="p">,</span> <span class="n">eval_param_filepath</span><span class="p">):</span>
+
+        <span class="n">agents_transition_proba</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_multi_agents</span><span class="p">(</span>
+            <span class="n">config_param_filepath</span><span class="p">,</span> <span class="n">eval_param_filepath</span>
+        <span class="p">)</span>
+        <span class="n">transition_proba_all_flattened</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">agent_proba_dict</span> <span class="ow">in</span> <span class="n">agents_transition_proba</span><span class="p">:</span>
+            <span class="n">transition_proba_values</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">value_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">value_dict</span> <span class="ow">in</span> <span class="n">agent_proba_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">value_dict</span>
+            <span class="p">]</span>
+            <span class="n">transition_proba_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">transition_proba_values</span><span class="p">)</span>
+            <span class="n">transition_proba_all_flattened</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transition_proba_values</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">transition_proba_all_flattened</span><span class="p">)</span>
+        <span class="n">std_devs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">transition_proba_all_flattened</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">std_devs</span> <span class="o">=</span> <span class="n">std_devs</span>
+        <span class="k">return</span> <span class="n">std_devs</span></div>
+
+
+<div class="viewcode-block" id="RobustnessEvaluation.get_req_runs">
+<a class="viewcode-back" href="../../../../sim_rl.evaluation.robustness_evaluation.html#sim_rl.evaluation.robustness_evaluation.robustness_evaluation.RobustnessEvaluation.get_req_runs">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_req_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimated_std_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">std_devs</span><span class="p">)</span>
+        <span class="n">required_n</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z_value</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimated_std_dev</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">desired_error</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Required number of runs:&quot;</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">required_n</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">required_n</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># Example usage</span>
+    <span class="c1"># 1. Set up the parameters for the robustness evaluation</span>
+    <span class="n">confidence_level</span> <span class="o">=</span> <span class="mf">0.95</span>
+    <span class="n">desired_error</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">num_runs</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">time_steps</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">num_sim</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="c1"># 2. Initialize the robustness evaluation class</span>
+    <span class="n">nr</span> <span class="o">=</span> <span class="n">RobustnessEvaluation</span><span class="p">(</span>
+        <span class="n">confidence_level</span><span class="o">=</span><span class="n">confidence_level</span><span class="p">,</span>
+        <span class="n">desired_error</span><span class="o">=</span><span class="n">desired_error</span><span class="p">,</span>
+        <span class="n">num_runs</span><span class="o">=</span><span class="n">num_runs</span><span class="p">,</span>
+        <span class="n">time_steps</span><span class="o">=</span><span class="n">time_steps</span><span class="p">,</span>
+        <span class="n">num_sim</span><span class="o">=</span><span class="n">num_sim</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 3. Train multiple agents and obtain the transition probabilities</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">nr</span><span class="o">.</span><span class="n">get_std</span><span class="p">(</span>
+        <span class="n">config_param_filepath</span><span class="o">=</span><span class="n">config_param_filepath</span><span class="p">,</span>
+        <span class="n">eval_param_filepath</span><span class="o">=</span><span class="n">eval_param_filepath</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">nr</span><span class="o">.</span><span class="n">get_req_runs</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Jevon Charles, Vinayak Modi, Fatima Al-Ani, Jinyan Wang, Aaron Ong, Joshua Forday.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
